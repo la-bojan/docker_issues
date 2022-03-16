@@ -1,0 +1,47 @@
+version: "3.6"
+services:
+  db:
+    image: 'postgres:11-alpine'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      PGDATA: /var/lib/postgresql/data/pgdata
+    restart: always
+    ports: 
+      - '5432:5432'
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+  backend: 
+    build: ./backend
+    depends_on:
+      - db
+    environment: 
+      MIX_ENV: dev
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: db
+      PGPORT: 5432
+      PGHOST: db
+    env_file:
+      - .env
+    ports:
+      - '4001:4001'
+    volumes:
+      - ./backend:/app
+
+  frontend:
+    build: ./frontend  
+    depends_on:
+      - backend
+    environment:
+      MIX_ENV: dev
+    env_file:
+      - .env
+    volumes:
+      - ./frontend:/app
+    ports:
+      - '4002:4002'
+    command: mix phx.server
+ 
+volumes:
+  pgdata: 
