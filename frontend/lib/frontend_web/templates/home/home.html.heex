@@ -1,0 +1,19 @@
+<h1 > Trello clone  </h1>
+
+<div class = "start-page-container">
+
+<span >
+  <%= link to: Routes.session_path(FrontendWeb.Endpoint, :logout) do%>
+      <button
+        class="btn-logout"
+        type="button"> Logout </button>
+  <% end %>
+</span>
+<%= live_render(@conn, FrontendWeb.Live.HomeLive.Index ,
+ session: %{
+        "current_user" => @current_user
+      }
+) %>
+
+
+</div>

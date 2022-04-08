@@ -1,0 +1,40 @@
+<% user = @user %>
+
+<div class = {"#{user.id}"} 
+phx-hook= "SortableList"
+ >
+
+<%= user.email %>
+<br/>
+<b><lable>User boards</lable></b>
+<br/>
+
+        <%= for board <- user.boards do %>
+        <div class = "board-container" >
+        <%= board.name %>
+        <br/>
+        <br/>
+        <%= link to: Routes.board_path(@socket,:show,board.id) do %>
+                <button>  Show Board </button>    
+            <%end %>
+        <%= live_patch to: "#", phx_click: "delete-board", phx_value_id: board.id do %>
+                <button>  Delete Board </button>    
+            <%end %>
+        </div>
+        <% end %>
+    <button  phx-click = "new-board" phx-value-user-id = {user.id} phx-value-user-email = {user.email} > New Board </button>
+</div>  
+
+
+
+<%= case @current_modal do %>
+    <% :board_form  -> %>
+    <div class = "form-class">
+    <h2> Add new board to <%= @current_user_email %> </h2>
+    <%= live_render(@socket, FrontendWeb.Live.HomeLive.BoardForm,
+     id: "list_form_#{(@current_user)}") %>
+    <button  phx-click = "close-modal"  > Close </button> 
+    </div>
+
+    <% nil -> %>
+<%end %>

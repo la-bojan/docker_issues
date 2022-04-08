@@ -47,6 +47,13 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
+
+config :tesla, adapter: Tesla.Adapter.Hackney
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
+
+config :backend, BackendWeb.Auth.Guardian,
+  issuer: "backend",
+  secret_key: "MseEffMzcN+bTnFhfAiAfGovrcUljzkf+R5WJJVo4ChE5cgrz66ze69qpQeWPdNo"

@@ -1,0 +1,55 @@
+
+<div class = "board-container" >
+<%= @current_board.name %>
+<br/>
+<button  phx-click = "new-list" phx-value-board-id = {@current_board.id} phx-value-board-name = {@current_board.name} > New List </button>
+<div class = "lists">
+    <%= for list <- @current_board.lists do %>
+        <div class = "list-container" draggable = "true" >
+            <b><%= list.title %></b>
+            <br/>
+            <div class = "task-container" draggable = "true">
+                <%= for task <- list.tasks do %>
+                    <b><%= task.title %></b>
+                    <br/>
+                    <%= task.description %>
+                    <br/>
+                    <%= live_patch to: "#", phx_click: "delete-task", phx_value_id: task.id do %>
+                        <button>  Delete </button>
+                    <% end %>
+                <% end %>
+                <%= if @current_modal == :task_form && list.id == @add_to_list do %>
+                    <div class = "form-class -task">
+                        <%= live_render(@socket, FrontendWeb.Live.BoardLive.TaskForm,
+                        id: "task_form_#{(@add_to_list)}", session: %{
+                            "list_id" => @add_to_list
+                        }) %>
+                        <button  phx-click = "close-modal"  > Close </button> 
+                    </div>
+                <%end %>
+                <%= if not( @current_modal == :task_form && list.id == @add_to_list) do %>
+                    <button  phx-click = "new-task"  phx-value-list-id = {list.id} phx-value-list-title = {list.title} > New Task </button>
+                <% end %>
+            </div>    
+            <%= live_patch to: "#", phx_click: "delete-list", phx_value_id: list.id do %>
+                <button>  Delete List </button>    
+            <%end %>
+        </div>
+    <% end %>
+    <%= if @current_modal == :list_form do %>
+        <div class = "form-class -list">
+            <%= live_render(@socket, FrontendWeb.Live.BoardLive.ListForm,
+            id: "list_form_#{(@current_board.id)}",session: %{
+                "board_id" => @current_board.id
+            }) %>
+            <button  phx-click = "close-modal"  > Close </button> 
+        </div>
+
+    <%end %>
+</div>
+
+       
+</div>  
+
+
+

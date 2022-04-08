@@ -5,9 +5,37 @@ defmodule BackendWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :auth do
+    plug BackendWeb.Auth.Pipeline
+  end
+
   scope "/api", BackendWeb do
     pipe_through :api
+
+
+    post "/users/signup", UserController, :create
+    post "/users/signin", UserController, :signin
+
+    resources "/users", UserController
+
+    resources "/boards", BoardController
+    get "/boards/userboards/:user_id", BoardController, :user_boards
+
+    resources "/lists", ListController
+    get "/lists/boardlists/:board_id", ListController, :board_lists
+
+    resources "/tasks", TaskController
+    get "/tasks/taskslist/:list_id", TaskController, :tasks_list
+
   end
+
+  scope "/api", BackendWeb do
+    pipe_through [:api, :auth]
+
+  end
+
+
+
 
   pipeline :browser do
     plug(:accepts, ["html"])
@@ -16,6 +44,8 @@ defmodule BackendWeb.Router do
   scope "/", BackendWeb do
     pipe_through :browser
     get "/", DefaultController, :index
+
+
   end
   # Enables LiveDashboard only for development
   #

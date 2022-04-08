@@ -1,0 +1,6 @@
+<.form let={f} for={@changeset}   phx-submit="add-new-list">
+  <%= label f , :title %>
+  <%= text_input f , :title %>
+  <%= hidden_input f, :board_id ,value: @board_id%>
+  <%= submit "Add new list" %>
+</.form>

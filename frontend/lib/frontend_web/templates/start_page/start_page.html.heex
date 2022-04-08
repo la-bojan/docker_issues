@@ -1,0 +1,20 @@
+<h2> Enter you credentials! </h2> 
+<section class="absolute w-full h-full">
+<.form let={f} for={@changeset} action={Routes.session_path(@socket, :signin)} >
+  <%= label f , :email %>
+  <%= text_input f , :email %>
+  <%= label f , :password %>
+  <%= password_input f , :password %>
+  <%= submit "Sign in"  %>
+</.form>
+
+<h2> Don't have an account create user! </h2> 
+
+<.form let={f} for={@changeset} phx-submit="signup" >
+  <%= label f , :email %>
+  <%= text_input f , :email %>
+  <%= label f , :password %>
+  <%= password_input f , :password %>
+  <%= submit "Sign up"  %>
+</.form>
+</section>

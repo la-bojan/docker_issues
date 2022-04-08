@@ -1,11 +1,21 @@
-# Script for populating the database. You can run it as:
-#
-#     mix run priv/repo/seeds.exs
-#
-# Inside the script, you can read and write to any of your
-# repositories directly:
-#
-#     Backend.Repo.insert!(%Backend.SomeSchema{})
-#
-# We recommend using the bang functions (`insert!`, `update!`
-# and so on) as they will fail if something goes wrong.
+
+alias Backend.Repo
+alias Backend.Accounts.User
+alias Backend.Accounts.Users
+
+
+Repo.insert! %User{email: "test@test.com", encrypted_password: "12345678aA#" ,
+boards: [%{name: "Board one",
+  lists: [%{title: "List A",
+  tasks: [%{title: "Task 1", description: "Testing task one" }]
+
+  }]
+}, %{name: "Board two"} ]
+}
+|> Repo.preload(:boards)
+
+
+
+user = %{email: "tessst@test.com", password: "12345678aA#"}
+
+Users.create_user(user)

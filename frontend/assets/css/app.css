@@ -7,6 +7,11 @@
   margin-bottom: 20px;
   border: 1px solid transparent;
   border-radius: 4px;
+  position: absolute;
+  text-align: center;
+  top: 35px;
+  left: 0;
+  right: 0;
 }
 .alert-info {
   color: #31708f;
@@ -117,4 +122,83 @@
 @keyframes fade-out-keys{
   0% { opacity: 1; }
   100% { opacity: 0; }
+}
+
+
+
+.user-container {
+  position: relative;
+  display: block;
+  padding: 5px;
+  width: 100%;
+  border: 1px solid blue;    
+  background-color: #FF0;
+  background-position: center;
+  overflow-y: auto;
+}
+
+.board-container {
+  position: relative;
+  display: inline-block;
+  padding: 5px;
+  width:100%;
+  height: auto; 
+  background-color: rgb(163, 163, 163);
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.list-container {
+  position: relative;
+  display: inline-block;
+  width:256px;
+  min-height: 512px;
+  padding: 5px;
+  background: linear-gradient(#0000FF,#4444FF);
+  margin-right: 20px;
+  border-radius: 5px;
+}
+
+.task-container {
+  position: relative;
+  display: inline-block;
+  width:100%;
+  height: 100%;
+  padding: 5px;
+}
+
+.start-page-container {
+  width: 100%;
+}
+
+
+.form-class {
+  text-align: center;
+  
+}
+
+.form-class.-list {
+  width: 250px;
+  min-height: 512px;
+  background: linear-gradient(#DDDDFF,#4444FF);
+  margin-right: 20px;
+  border-radius: 5px;
+}
+
+.form-class.-task {
+  width: 100%;
+  min-height: 100px;
+  background: linear-gradient(#CCCCFF,#6666FF);
+  margin-right: 20px;
+  border-radius: 5px;
+}
+
+.lists {
+  display: flex;
+
+}
+
+.btn-logout {
+  position: absolute;
+  right: 20px;
 }

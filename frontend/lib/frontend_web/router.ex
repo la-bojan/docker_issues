@@ -1,6 +1,7 @@
 defmodule FrontendWeb.Router do
   use FrontendWeb, :router
 
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -10,14 +11,36 @@ defmodule FrontendWeb.Router do
     plug :put_secure_browser_headers
   end
 
+  pipeline :authenticated do
+    plug FrontendWeb.Plugs.AuthenticatedPipeline
+    plug FrontendWeb.Plugs.CurrentUser
+  end
+
+  pipeline :unauthenticated do
+    plug  FrontendWeb.Plugs.UnauthenticatedPipeline
+  end
+
+
   pipeline :api do
     plug :accepts, ["json"]
   end
 
   scope "/", FrontendWeb do
-    pipe_through :browser
+    pipe_through [:browser,:unauthenticated]
+
 
     get "/", PageController, :index
+    post "/signin", SessionController, :signin, as: :session
+
+  end
+
+  scope "/", FrontendWeb do
+    pipe_through [:browser,:authenticated]
+
+    get "/logout", SessionController, :logout
+
+    resources "/home", HomeController
+    resources "/board", BoardController, only: [:show], as: :board
   end
 
   # Other scopes may use custom stacks.
@@ -33,12 +56,9 @@ defmodule FrontendWeb.Router do
   # you can use Plug.BasicAuth to set up some basic authentication
   # as long as you are also using SSL (which you should anyway).
   if Mix.env() in [:dev, :test] do
-    import Phoenix.LiveDashboard.Router
 
     scope "/" do
       pipe_through :browser
-
-      live_dashboard "/dashboard", metrics: FrontendWeb.Telemetry
     end
   end
 

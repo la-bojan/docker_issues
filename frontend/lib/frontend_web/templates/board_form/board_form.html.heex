@@ -1,0 +1,8 @@
+<.form let={f} for={@changeset}  phx-submit="add-new-board">
+  <div>
+    <%= label f , :name %>
+    <%= text_input f , :name %>
+  
+    <%= submit "Add new board" %>
+  </div>
+</.form>

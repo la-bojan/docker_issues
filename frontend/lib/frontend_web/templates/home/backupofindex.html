@@ -1,0 +1,84 @@
+<% user = @user %>
+
+<div class = {"#{user.id}"} 
+phx-hook= "SortableList"
+ >
+
+<lable>User email: </lable>
+<%= user.email %>
+<br/>
+<b><lable>User boards</lable></b>
+<br/>
+
+        <%= for board <- user.boards do %>
+        <div class = "board-container" >
+        <%= board.name %>
+        <br/>
+
+            <%= for list <- board.lists do %>
+                <div class = "list-container" draggable = "true" >
+                <b><%= list.title %></b>
+                <br/>
+                    <div class = "task-container" draggable = "true">
+                    <%= for task <- list.tasks do %>
+                
+                    <b><%= task.title %></b>
+                    <br/>
+                    <%= task.description %>
+                    <br/>
+                    <%= live_patch to: "#", phx_click: "delete-task", phx_value_id: task.id do %>
+                    <button>  Delete </button>
+                    <% end %>
+                
+            <% end %>
+                
+            <button  phx-click = "new-task"  phx-value-list-id = {list.id} phx-value-list-title = {list.title} > New Task </button>
+            </div>    
+            <%= live_patch to: "#", phx_click: "delete-list", phx_value_id: list.id do %>
+                <button>  Delete List </button>    
+            <%end %>
+        </div>
+        <% end %>
+        <br/>
+        <button  phx-click = "new-list" phx-value-board-id = {board.id} phx-value-board-name = {board.name} > New List </button>
+        <%= live_patch to: "#", phx_click: "delete-board", phx_value_id: board.id do %>
+                <button>  Delete Board </button>    
+            <%end %>
+    </div>
+    <% end %>
+    <button  phx-click = "new-board" phx-value-user-id = {user.id} phx-value-user-email = {user.email} > New Board </button>
+</div>  
+
+
+
+<%= case @current_modal do %>
+    <% :task_form -> %>
+    <div class = "form-class">
+    <h2> Add new tast to <%= @current_list_title %> </h2>
+    <%= live_render(@socket, FrontendWeb.Live.HomeLive.TaskForm,
+     id: "task_form_#{(@current_list)}", session: %{
+        "list_id" => @current_list
+     }) %>
+    <button  phx-click = "close-modal"  > Close </button> 
+    </div>
+
+    <% :list_form  -> %>
+    <div class = "form-class">
+    <h2> Add new list to <%= @current_board_name %> </h2>
+    <%= live_render(@socket, FrontendWeb.Live.HomeLive.ListForm,
+     id: "list_form_#{(@current_board)}",session: %{
+        "board_id" => @current_board
+     }) %>
+    <button  phx-click = "close-modal"  > Close </button> 
+    </div>
+
+    <% :board_form  -> %>
+    <div class = "form-class">
+    <h2> Add new board to <%= @current_user_email %> </h2>
+    <%= live_render(@socket, FrontendWeb.Live.HomeLive.BoardForm,
+     id: "list_form_#{(@current_user)}") %>
+    <button  phx-click = "close-modal"  > Close </button> 
+    </div>
+
+    <% nil -> %>
+<%end %>

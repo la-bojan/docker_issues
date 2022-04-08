@@ -1,0 +1,19 @@
+<%= link to: Routes.home_path(@conn,:index) do %>
+  <button>  Back </button>    
+<%end %>
+
+<span >
+  <%= link to: Routes.session_path(FrontendWeb.Endpoint, :logout) do%>
+      <button
+        class="btn-logout"
+        type="button"> Logout </button>
+  <% end %>
+</span>
+
+<%= live_render(@conn, FrontendWeb.Live.BoardLive.ShowBoard ,
+ session: %{
+        "current_board" => @current_board
+      }
+) %>
+
+

@@ -9,6 +9,7 @@ import Config
 
 # Configures the endpoint
 config :frontend, FrontendWeb.Endpoint,
+  live_view: [signing_salt: "MstvAELBh/PcHLc0dqxIahy5AXenVJcH"],
   url: [host: "localhost"],
   render_errors: [view: FrontendWeb.ErrorView, accepts: ~w(html json), layout: false],
   pubsub_server: Frontend.PubSub,
@@ -47,3 +48,5 @@ config :phoenix, :json_library, Jason
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
+
+config :tesla, adapter: Tesla.Adapter.Hackney

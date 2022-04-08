@@ -1,0 +1,10 @@
+<.form let={f} for={@changeset}  phx-submit="add-new-task">
+  <div>
+    <%= text_input f , :title, placeholder: "Title" %>
+    <%= textarea f , :description, placeholder: "Description" %>
+
+    <%= hidden_input f, :list_id, value: @list_id %>
+  
+    <%= submit "Add new task" %>
+  </div>
+</.form>
