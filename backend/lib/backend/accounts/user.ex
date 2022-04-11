@@ -8,7 +8,7 @@ defmodule Backend.Accounts.User do
     field :encrypted_password, :string
     field :password, :string, virtual: true
 
-
+    has_many :comments, Backend.Comments.Comment, foreign_key: :created_by_user_id
     has_many :boards, Backend.Boards.Board
     timestamps()
   end

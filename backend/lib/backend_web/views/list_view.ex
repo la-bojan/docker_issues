@@ -18,11 +18,12 @@ defmodule BackendWeb.ListView do
       id: list.id,
       title: list.title,
       board_id: list.board_id,
+      position: list.position,
       tasks: render_many(list.tasks, TaskView, "task.json")
     }
 
 
-    Map.take(list, [:id, :title, :board_id])
+    Map.take(list, [:id, :title, :board_id,:position])
     |> Map.merge(%{ tasks: render_many(list.tasks, TaskView, "task.json") })
   end
 end

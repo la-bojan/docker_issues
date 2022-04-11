@@ -16,6 +16,7 @@ defmodule BackendWeb.TaskView do
     :id,
     :title,
     :description,
+    :position,
     :list_id
     ])
   end

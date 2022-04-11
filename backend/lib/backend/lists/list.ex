@@ -7,6 +7,7 @@ defmodule Backend.Lists.List do
   schema "lists" do
     field :title, :string
     field :board_id, :id
+    field :position, :decimal
 
     has_many :tasks, Item
 
@@ -16,7 +17,7 @@ defmodule Backend.Lists.List do
   @doc false
   def changeset(list, attrs) do
     list
-    |> cast(attrs, [:title,:board_id])
+    |> cast(attrs, [:title,:board_id,:position])
     |> cast_assoc(:tasks, with: &Item.changeset/2)
     |> validate_required([:title])
   end

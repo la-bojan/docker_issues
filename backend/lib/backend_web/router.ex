@@ -27,6 +27,13 @@ defmodule BackendWeb.Router do
     resources "/tasks", TaskController
     get "/tasks/taskslist/:list_id", TaskController, :tasks_list
 
+    resources "/board_permissions", BoardPermissionController, except: [:new, :edit, :show]
+    get "/board_permissions/:board_id/user/:user_id", BoardPermissionController, :show
+    get "/boards/:board_id/members", BoardPermissionController, :index
+
+    resources "/comments", CommentController, except: [:new, :edit]
+    get "/tasks/:task_id/comments", CommentController, :index
+
   end
 
   scope "/api", BackendWeb do

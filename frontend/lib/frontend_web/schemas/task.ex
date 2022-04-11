@@ -11,6 +11,7 @@ defmodule FrontendWeb.Schemas.Task do
     :title,
     :description,
     :list_id,
+    :position,
     :inserted_at,
     :updated_at
   ]}
@@ -20,6 +21,7 @@ defmodule FrontendWeb.Schemas.Task do
     field(:id, :integer, primary_key: true)
     field(:title, :string)
     field(:description, :string)
+    field(:position,:decimal)
 
     belongs_to :list, List, type: :integer
 
@@ -31,6 +33,7 @@ defmodule FrontendWeb.Schemas.Task do
     :title,
     :description,
     :list_id,
+    :position,
     :inserted_at,
     :updated_at
   ]
@@ -64,6 +67,7 @@ defmodule FrontendWeb.Schemas.Task do
   @update_attrs [
     :title,
     :description,
+    :position,
     :list_id
   ]
 
@@ -74,6 +78,7 @@ defmodule FrontendWeb.Schemas.Task do
       title: :string,
       list_id: :integer,
       id: :integer,
+      position: :decimal,
       description: :boolean
     }
 

@@ -12,7 +12,8 @@
 
 <%= live_render(@conn, FrontendWeb.Live.BoardLive.ShowBoard ,
  session: %{
-        "current_board" => @current_board
+        "current_board" => @current_board,
+        "access_token" => @access_token
       }
 ) %>
 

@@ -21,10 +21,10 @@ defmodule  BackendWeb.ListController do
     render(conn, "show.json", list: list)
   end
 
-  def update(conn, %{"id" => id, "list" => list_params}) do
+  def update(conn, %{"id" => id} = params) do
     list = Lists.get_list!(id)
 
-    with {:ok, %List{} = list} <- Lists.update_list(list, list_params) do
+    with {:ok, %List{} = list} <- Lists.update_list(list, params) do
       render(conn, "show.json", list: list)
     end
   end

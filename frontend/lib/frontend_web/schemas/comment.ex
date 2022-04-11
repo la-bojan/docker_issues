@@ -1,29 +1,27 @@
-defmodule FrontendWeb.Schemas.List do
+defmodule FrontendWeb.Schemas.Comment do
   use Ecto.Schema
 
   import Ecto.Changeset
 
-  alias FrontendWeb.Schemas.Task
 
   @derive {Jason.Encoder,
   only: [
     :id,
-    :board_id,
-    :title,
-    :position,
+    :created_by_id,
+    :task_id,
+    :content,
     :inserted_at,
     :deleted_at,
     :updated_at
   ]}
 
   @primary_key false
-  schema "lists" do
+  schema "comments" do
     field(:id, :integer, primary_key: true)
-    field(:board_id, :integer)
-    field(:title, :string)
-    field(:position, :decimal)
+    field(:task_id, :integer)
+    field(:created_by_id, :integer)
+    field(:content, :string)
 
-    has_many :tasks, Task, foreign_key: :list_id, references: :id
 
     timestamps(type: :utc_datetime_usec)
     field(:deleted_at, :utc_datetime_usec)
@@ -33,9 +31,9 @@ defmodule FrontendWeb.Schemas.List do
 
   @schema_fields [
     :id,
-    :board_id,
-    :title,
-    :position,
+    :created_by_id,
+    :task_id,
+    :content,
     :inserted_at,
     :deleted_at,
     :updated_at
@@ -47,7 +45,6 @@ defmodule FrontendWeb.Schemas.List do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @schema_fields)
-    |> cast_assoc(:tasks)
   end
 
 
@@ -57,42 +54,20 @@ defmodule FrontendWeb.Schemas.List do
 
   def query_changeset(struct, params \\ %{}) do
     types = %{
-      board_id: :integer,
-      title: :string
+      content: :string
     }
     {struct, types}
     |> cast(params, Map.keys(types))
   end
 
   def create_changeset(struct, params \\ %{}) do
-    required = [:title,:board_id]
+    required = [:content,:created_by_id,:task_id]
 
     struct
     |> cast(params, required)
     |> validate_required(required)
   end
 
-  @update_attrs [
-    :id,
-    :board_id,
-    :title,
-    :position,
-  ]
-
-  def update_attrs, do: @update_attrs
-
-  def update_changeset(struct, params \\ %{}, _update_attrs \\ @update_attrs) do
-    types = %{
-      id: :integer,
-      title: :string,
-      board_id: :integer,
-      position: :decimal
-    }
-
-    {struct, types}
-    |> cast(params, Map.keys(types))
-    |> validate_required([:id])
-  end
 
   @delete_attrs [
     :id

@@ -14,11 +14,23 @@ defmodule Backend.Lists.Lists do
 
 
   def create_list(attrs \\ %{}) do
-    %List{}
-    |> Repo.preload(:tasks)
-    |> List.changeset(attrs)
-    |> Repo.insert()
+    case Map.pop(attrs, "board_id")  do
+      {board_id, _} when not is_nil(board_id) ->
+        position = get_last_position(board_id)
+        %List{}
+        |> Repo.preload(:tasks)
+        |> List.changeset(Map.merge(attrs, %{"position" => position}))
+        |> Repo.insert()
+
+      _ ->
+        %List{}
+        |> Repo.preload(:tasks)
+        |> List.changeset(attrs)
+        |> Changeset.apply_changes
+    end
   end
+
+
 
   def all_board_lists(board_id) do
     query =
@@ -40,6 +52,17 @@ defmodule Backend.Lists.Lists do
 
   def change_list(%List{} = list, attrs \\ %{}) do
     List.changeset(list, attrs)
+  end
+
+  def get_last_position(board_id) do
+    query =
+      from l in List,
+        where: l.board_id == ^board_id,
+        select: max(l.position)
+
+    Repo.one(query)
+    |> Kernel.||(0)
+    |> Decimal.add(1)
   end
 
 end

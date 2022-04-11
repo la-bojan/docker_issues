@@ -11,7 +11,10 @@ defmodule FrontendWeb.Live.BoardLive.ShowBoard do
 
     current_user = session["current_user"]
     current_board = session["current_board"]
+    access_token = session["access_token"]
     {:ok,user} = Users.get_user(%{id: current_user})
+
+    lists = current_board.lists
 
     socket =
       socket
@@ -19,6 +22,8 @@ defmodule FrontendWeb.Live.BoardLive.ShowBoard do
       |> assign(:user, user)
       |> assign(:current_user, current_user)
       |> assign(:current_board, current_board)
+      |> assign(:access_token,access_token)
+      |> assign(:lists, lists)
 
     {:ok, socket}
   end
@@ -36,6 +41,20 @@ defmodule FrontendWeb.Live.BoardLive.ShowBoard do
     {:noreply, socket}
   end
 
+
+  @impl true
+  def handle_event("task-comments", %{"id" => id}, socket) do
+
+    IO.inspect("aaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbccccccccccccccccccccccc")
+    IO.inspect(id)
+    socket =
+        socket
+        |> assign(:current_modal, :comment_form)
+        |> assign(:current_task_id, id)
+
+    {:noreply, socket}
+  end
+
   def handle_info(:refresh_board,socket) do
     current_user = socket.assigns.current_user
     {:ok,user} = Users.get_user(%{id: current_user})
@@ -49,13 +68,90 @@ defmodule FrontendWeb.Live.BoardLive.ShowBoard do
   end
 
   def handle_event("new-task", %{"list-id" => list_id,"list-title" => list_title}, socket) do
-    IO.puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-    IO.inspect(list_id)
     socket =
       socket
       |> assign(:add_to_list, String.to_integer(list_id))
       |> assign(:current_modal, :task_form )
     {:noreply, socket}
+  end
+
+
+  def handle_event(
+    "reorder",
+    %{"type" => "list", "resourceId" => list_id, "position" => position},
+    %{assigns: assigns} = socket
+  ) do
+
+  list_id = String.to_integer(list_id)
+  params = %{
+    "access_token" => assigns.access_token,
+    "position" => position
+  }
+
+
+  list = Enum.find(assigns.lists, &(&1.id == list_id))
+
+  with {:ok, list} <- Lists.update_list(list, params) do
+    lists =
+      Enum.map(assigns.lists, fn l ->
+        if l.id == list.id, do: list, else: l
+      end)
+
+    socket =
+      socket
+      |> put_flash(:info, "List reordered seccesufuly!")
+      |> assign(modal: nil)
+      |> assign(lists: lists)
+    {:noreply, socket}
+  else
+    _error ->
+      {:noreply, put_flash(socket, :error, "Unable to reorder list.")} #expand more on error handling
+  end
+
+  end
+
+
+  def handle_event(
+        "reorder",
+        %{"type" => "task", "resourceId" => task_id, "position" => position, "sortableListId" => list_id},
+        %{assigns: assigns} = socket
+      ) do
+
+    params = %{
+      "access_token" => assigns.access_token,
+      "list_id" => list_id,
+      "position" => position
+    }
+    list_id = String.to_integer(list_id)
+    task_id = String.to_integer(task_id)
+
+
+    list = Enum.find(assigns.lists, &(&1.id == list_id))
+
+    {:ok,task} = Tasks.get_task(%{"id" => task_id, "access_token" => assigns.access_token })
+
+    with {:ok, task} <- Tasks.update_task(task, params) do
+      tasks =
+        Enum.map(list.tasks, fn t ->
+          if t.id == task.id, do: task, else: t
+        end)
+      list = Map.put(list,:tasks,tasks)
+      lists =
+        Enum.map(assigns.lists, fn l ->
+          if l.id == list.id, do: list, else: l
+        end)
+
+      socket =
+        socket
+        |> put_flash(:info, "Task reordered successfully")
+        |> assign(modal: nil)
+        |> assign(lists: lists)
+      {:noreply, socket}
+    else
+      _error ->
+        {:noreply, put_flash(socket, :error, "Unable to reorder task.")} #expand more on error handling
+    end
+    {:noreply,socket}
   end
 
   def handle_event("delete-task", %{"id" => id}, socket) do

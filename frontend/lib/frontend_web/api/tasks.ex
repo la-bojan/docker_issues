@@ -45,6 +45,30 @@ defmodule FrontendWeb.Api.Tasks do
     end
   end
 
+  def get_task(params) do
+    url = "/api/tasks/:id"
+
+
+    {access_token, params} = Map.pop(params, "access_token")
+
+    with %{valid?: true} = changeset <- Task.query_changeset(%Task.Query{}, params),
+         user = Changeset.apply_changes(changeset),
+         query =
+           changeset
+           |> Changeset.apply_changes()
+           |> Map.from_struct(),
+          client = client(access_token),
+          path_params = Map.take(query, [:id]),
+         {:ok, %{body: body, status: status}} when status in @success_codes <-
+         Tesla.get(client, url, query: query,opts: [path_params: path_params]) do
+      {:ok, from_response(body)}
+    else
+      {:ok, %{body: body}} -> {:error, body}
+      %Changeset{} = changeset -> {:error, changeset}
+      error -> error
+    end
+  end
+
   def delete_task!(params) do
     url = "/api/tasks/:id"
     {access_token, params} = Map.pop(params, "access_token")

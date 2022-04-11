@@ -3,21 +3,50 @@
 <%= @current_board.name %>
 <br/>
 <button  phx-click = "new-list" phx-value-board-id = {@current_board.id} phx-value-board-name = {@current_board.name} > New List </button>
-<div class = "lists">
-    <%= for list <- @current_board.lists do %>
-        <div class = "list-container" draggable = "true" >
+<div class = "lists"
+phx-hook="SortableList" id= "board_list"
+data-enabled={ true }
+data-ghost-class="-ghost" 
+data-sortable-list-id={ @current_board.id }
+>   
+    <%= for list <- Enum.sort(@lists, &(Decimal.compare(&1.position, &2.position) in [:eq, :lt])) do  %>
+    <div class="list-column _item _handle"
+    draggable = "true"
+    data-id= { list.position }
+    data-resource-id= { list.id }
+    data-type= "list" 
+    >
+        <div class = "list-container">
             <b><%= list.title %></b>
-            <br/>
-            <div class = "task-container" draggable = "true">
-                <%= for task <- list.tasks do %>
-                    <b><%= task.title %></b>
-                    <br/>
-                    <%= task.description %>
-                    <br/>
-                    <%= live_patch to: "#", phx_click: "delete-task", phx_value_id: task.id do %>
-                        <button>  Delete </button>
+            <br/>   
+                <div class = "tasks"
+                phx-hook="SortableList" id= {"board_list_#{list.id}"}
+                data-enabled={ true }
+                data-ghost-class="-ghost" 
+                data-sortable-list-id={ list.id }
+                data-group = {"tasks"}
+                >
+                    <%= for task <- Enum.sort(list.tasks, &(Decimal.compare(&1.position, &2.position) in [:eq, :lt])) do %>
+                    <div class = "task-container _item _handle"
+                    draggable = "true"
+                    data-id= { task.position }
+                    data-resource-id= { task.id }
+                    data-type= "task" 
+                    >
+
+                        <b><%= task.title %></b>
+                        <br/>
+                        <%= task.description %>
+                        <br/>
+                        <%= live_patch to: "#", phx_click: "task-comments", phx_value_id: task.id do %>
+                            <button>  Comments </button>
+                        <% end %>
+                        <%= live_patch to: "#", phx_click: "delete-task", phx_value_id: task.id do %>
+                            <button>  Delete </button>
+                        <% end %>
+                    </div> 
                     <% end %>
-                <% end %>
+                </div>
                 <%= if @current_modal == :task_form && list.id == @add_to_list do %>
                     <div class = "form-class -task">
                         <%= live_render(@socket, FrontendWeb.Live.BoardLive.TaskForm,
@@ -30,11 +59,12 @@
                 <%= if not( @current_modal == :task_form && list.id == @add_to_list) do %>
                     <button  phx-click = "new-task"  phx-value-list-id = {list.id} phx-value-list-title = {list.title} > New Task </button>
                 <% end %>
-            </div>    
+               
             <%= live_patch to: "#", phx_click: "delete-list", phx_value_id: list.id do %>
                 <button>  Delete List </button>    
             <%end %>
         </div>
+    </div>
     <% end %>
     <%= if @current_modal == :list_form do %>
         <div class = "form-class -list">
@@ -51,5 +81,17 @@
        
 </div>  
 
+
+<%= if @current_modal == :comment_form do %>
+        <div class = "form-class">
+            <h1>Comments section </h1>
+            <%= live_render(@socket, FrontendWeb.Live.BoardLive.CommentForm,
+            id: "comment_form_#{(@current_task_id)}",session: %{
+                "task_id" => @current_task_id
+            }) %>
+            <button  phx-click = "close-modal"  > Close </button> 
+        </div>
+
+    <%end %>
 
 

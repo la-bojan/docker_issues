@@ -17,15 +17,15 @@ defmodule  BackendWeb.TaskController do
   end
 
   def show(conn, %{"id" => id}) do
-    item = Tasks.get_item!(id)
-    render(conn, "show.json", item: item)
+    task = Tasks.get_item!(id)
+    render(conn, "show.json", task: task)
   end
 
-  def update(conn, %{"id" => id, "item" => item_params}) do
+  def update(conn, %{"id" => id} = params) do
     item = Tasks.get_item!(id)
 
-    with {:ok, %Item{} = task} <- Tasks.update_item(item, item_params) do
-      render(conn, "show.json", item: item)
+    with {:ok, %Item{} = task} <- Tasks.update_item(item, params) do
+      render(conn, "show.json", task: task)
     end
   end
 

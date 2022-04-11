@@ -30,10 +30,21 @@ defmodule Backend.Tasks.Tasks do
   end
 
   def create_item(attrs \\ %{}) do
-    %Item{}
-    |> Item.changeset(attrs)
-    |> Repo.insert()
+    case Map.pop(attrs, "list_id")  do
+      {list_id, _} when not is_nil(list_id) ->
+        position = get_last_position(list_id)
+        %Item{}
+        |> Item.changeset(Map.merge(attrs, %{"position" => position}))
+        |> Repo.insert()
+
+      _ ->
+        %Item{}
+        |> Item.changeset(attrs)
+        |> Changeset.apply_changes
+    end
   end
+
+
 
   def update_item(%Item{} = item, attrs) do
     item
@@ -47,6 +58,17 @@ defmodule Backend.Tasks.Tasks do
 
   def change_item(%Item{} = item, attrs \\ %{}) do
     Item.changeset(item, attrs)
+  end
+
+  def get_last_position(list_id) do
+    query =
+      from t in Item,
+        where: t.list_id == ^list_id,
+        select: max(t.position)
+
+    Repo.one(query)
+    |> Kernel.||(0)
+    |> Decimal.add(1)
   end
 
 end
