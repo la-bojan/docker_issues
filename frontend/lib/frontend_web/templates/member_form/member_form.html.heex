@@ -1,0 +1,31 @@
+Kurac za dodavanje novog membera 
+<br/>
+Choose a permission 
+<label for="permissons">Choose a permisson:</label>
+
+<select name="permissons" id="permisson">
+  <option phx-click="select_permisson" phx-value-permission="manage">Manage</option>
+  <option phx-click="select_permisson" phx-value-permission="write">Write</option>
+  <option phx-click="select_permisson" phx-value-permission="read">Read</option>
+</select>
+
+<.form let={f} for={@user_changeset} phx_change =  "search_user">
+  <div>
+
+    <%= text_input f, :email, class: "search-input", placeholder: "Search User", autocomplete: "off", data_focus: "true", phx_debounce: 200 %>
+  
+    <button type="submit" disabled style="display: none" aria-hidden="true"></button>
+  </div>
+</.form>
+ <%= case @results do%>
+      <% nil -> %>
+      <% _ -> %>
+        <div class="search-results">
+          <%= if @results == "" do%>
+            <div class="item" phx-click="update_member" phx-value-unassign="true">Not Assigned</div>
+          <% end %>
+          <%= for user <- @results do %>
+            <div class="item" phx-click="craete_board_permission" phx-value-assignee_id= { user.id }   ><%= user.email %></div>
+          <% end %>
+        </div>
+<% end %>

@@ -5,6 +5,8 @@ defmodule  BackendWeb.BoardController do
   alias Backend.Boards.Board
 
   def index(conn, _params) do
+
+
     boards = Boards.list_boards()
 
     render(conn, "index.json", boards: boards)
@@ -13,7 +15,8 @@ defmodule  BackendWeb.BoardController do
   def create(conn, params) do
 
     {:ok,board} = Boards.create_board(params)
-
+    board_permission_params = %{"board_id" => board.id, "user_id" => board.user_id, "permission_type" => :manage}
+    {:ok,board_permission} = Boards.create_board_permission(board_permission_params)
     render(conn, "show.json", board: board)
   end
 

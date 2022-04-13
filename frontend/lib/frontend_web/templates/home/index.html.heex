@@ -9,7 +9,7 @@ phx-hook= "SortableList"
 <b><lable>User boards</lable></b>
 <br/>
 
-        <%= for board <- user.boards do %>
+        <%= for board <- @boards do %>
         <div class = "board-container" >
         <%= board.name %>
         <br/>
@@ -17,6 +17,7 @@ phx-hook= "SortableList"
         <%= link to: Routes.board_path(@socket,:show,board.id) do %>
                 <button>  Show Board </button>    
             <%end %>
+        <button  phx-click = "add-new-member" phx-value-board-id = {board.id} phx-value-board-name = {board.name} > Add new member </button>
         <%= live_patch to: "#", phx_click: "delete-board", phx_value_id: board.id do %>
                 <button>  Delete Board </button>    
             <%end %>
@@ -33,6 +34,19 @@ phx-hook= "SortableList"
     <h2> Add new board to <%= @current_user_email %> </h2>
     <%= live_render(@socket, FrontendWeb.Live.HomeLive.BoardForm,
      id: "list_form_#{(@current_user)}") %>
+    <button  phx-click = "close-modal"  > Close </button> 
+    </div>
+
+
+    <% :add_new_member_form ->  %>
+    <div class = "form-class">
+    <h2> Add new member to <%= @current_board_name %> </h2>
+     <%= live_render(@socket, FrontendWeb.Live.HomeLive.MemberForm,
+     id: "list_form_#{(@current_board_id)}",
+      session: %{
+            "current_board_id" => @current_board_id,
+            "access_token" => @access_token
+        } ) %>
     <button  phx-click = "close-modal"  > Close </button> 
     </div>
 

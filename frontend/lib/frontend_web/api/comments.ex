@@ -1,4 +1,4 @@
-defmodule FrontendWeb.Api.Lists do
+defmodule FrontendWeb.Api.Comments do
   alias Ecto.Changeset
 
   alias FrontendWeb.Schemas.Comment
@@ -7,7 +7,7 @@ defmodule FrontendWeb.Api.Lists do
 
 
   def get_comments(params) do
-    url = "/api/tasks/:id/comments"
+    url = "/api/tasks/:task_id/comments"
 
 
     {access_token, params} = Map.pop(params, "access_token")
@@ -19,10 +19,10 @@ defmodule FrontendWeb.Api.Lists do
            |> Changeset.apply_changes()
            |> Map.from_struct(),
           client = client(access_token),
-          path_params = Map.take(query, [:id]),
+          path_params = Map.take(query, [:task_id]),
          {:ok, %{body: body, status: status}} when status in @success_codes <-
          Tesla.get(client, url, query: query,opts: [path_params: path_params]) do
-      {:ok, from_response(body)}
+      {:ok, Enum.map(body, &from_response/1)}
     else
       {:ok, %{body: body}} -> {:error, body}
       %Changeset{} = changeset -> {:error, changeset}

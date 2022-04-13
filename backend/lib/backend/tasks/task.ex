@@ -4,6 +4,7 @@ defmodule Backend.Tasks.Item do
 
 
   alias Backend.Comments.Comment
+  alias Backend.Accounts.User
 
   schema "tasks" do
     field :description, :string
@@ -11,6 +12,7 @@ defmodule Backend.Tasks.Item do
     field :list_id, :id
     field :position, :decimal
 
+    belongs_to :assignee_user, User, foreign_key: :assignee_id
     has_many :tasks, Comment
 
     timestamps()
@@ -19,7 +21,7 @@ defmodule Backend.Tasks.Item do
   @doc false
   def changeset(task, attrs) do
     task
-    |> cast(attrs, [:title, :description,:list_id,:position])
+    |> cast(attrs, [:title, :description,:list_id,:position,:assignee_id])
     |> validate_required([:title, :description])
   end
 end

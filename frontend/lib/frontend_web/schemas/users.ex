@@ -4,6 +4,7 @@ defmodule FrontendWeb.Schemas.User do
   import Ecto.Changeset
 
   alias FrontendWeb.Schemas.Board
+  alias FrontendWeb.Schemas.Task
 
   @derive {Jason.Encoder,
   only: [
@@ -22,6 +23,7 @@ defmodule FrontendWeb.Schemas.User do
     field(:password, :string)
 
     has_many :boards, Board, foreign_key: :user_id, references: :id
+    has_many :assigned_tasks, Task, foreign_key: :assignee_id, references: :id
 
     timestamps(type: :utc_datetime_usec)
     field(:deleted_at, :utc_datetime_usec)

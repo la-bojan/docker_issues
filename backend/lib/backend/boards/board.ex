@@ -9,6 +9,7 @@ defmodule Backend.Boards.Board do
     belongs_to :user, User
 
     has_many :lists, List
+    has_many :board_permissions, Backend.Boards.BoardPermission
     timestamps()
   end
 

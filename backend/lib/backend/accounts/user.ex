@@ -9,6 +9,8 @@ defmodule Backend.Accounts.User do
     field :password, :string, virtual: true
 
     has_many :comments, Backend.Comments.Comment, foreign_key: :created_by_user_id
+    has_many :assigned_tasks, Backend.Tasks.Item, foreign_key: :assignee_id
+    has_many :board_permissions, Backend.Boards.BoardPermission
     has_many :boards, Backend.Boards.Board
     timestamps()
   end

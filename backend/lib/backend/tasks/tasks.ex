@@ -8,9 +8,10 @@ defmodule Backend.Tasks.Tasks do
 
   def list_tasks do
     Repo.all(Item)
+    |> Repo.preload(:assignee_user)
   end
 
-  def get_item!(id), do: Repo.get!(Item, id)
+  def get_item!(id), do: Repo.get!(Item, id)|> Repo.preload(:assignee_user)
 
   def all_list_tasks(list_id) do
     query =

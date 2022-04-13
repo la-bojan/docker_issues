@@ -27,7 +27,7 @@ defmodule BackendWeb.BoardPermissionController do
 
   def show(conn, %{"board_id" => board_id, "user_id" => user_id}) do
     permission = Boards.get_board_permission!(board_id, user_id)
-    render(conn, "show.json", board_permission: permission |> IO.inspect)
+    render(conn, "show.json", board_permission: permission)
   end
 
   def update(conn, %{"id" => id} = permission_params) do

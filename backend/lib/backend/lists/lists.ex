@@ -7,10 +7,10 @@ defmodule Backend.Lists.Lists do
 
   def list_lists do
     Repo.all(List)
-    |> Repo.preload(:tasks)
+    |> Repo.preload( [tasks: [:assignee_user]] )
   end
 
-  def get_list!(id),do: Repo.get!(List, id) |> Repo.preload(:tasks)
+  def get_list!(id),do: Repo.get!(List, id) |> Repo.preload([tasks: [:assignee_user]])
 
 
   def create_list(attrs \\ %{}) do

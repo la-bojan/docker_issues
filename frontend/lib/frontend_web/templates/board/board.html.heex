@@ -83,15 +83,18 @@ data-sortable-list-id={ @current_board.id }
 
 
 <%= if @current_modal == :comment_form do %>
-        <div class = "form-class">
-            <h1>Comments section </h1>
-            <%= live_render(@socket, FrontendWeb.Live.BoardLive.CommentForm,
-            id: "comment_form_#{(@current_task_id)}",session: %{
-                "task_id" => @current_task_id
-            }) %>
-            <button  phx-click = "close-modal"  > Close </button> 
-        </div>
+    <div class = "form-class">
+        <h1>Comments section </h1>
+        <%= live_render(@socket, FrontendWeb.Live.BoardLive.CommentForm,
+        id: "comment_form_#{(@current_task_id)}",session: %{
+            "task_id" => @current_task_id,
+            "current_task" => @current_task,
+            "access_token" => @access_token
+        }) %>
+        <button  phx-click = "close-modal"  > Close </button> 
+    </div>
 
-    <%end %>
+<%end %>
+
 
 

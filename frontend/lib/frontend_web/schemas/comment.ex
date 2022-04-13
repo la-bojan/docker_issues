@@ -54,7 +54,8 @@ defmodule FrontendWeb.Schemas.Comment do
 
   def query_changeset(struct, params \\ %{}) do
     types = %{
-      content: :string
+      content: :string,
+      task_id: :integer
     }
     {struct, types}
     |> cast(params, Map.keys(types))

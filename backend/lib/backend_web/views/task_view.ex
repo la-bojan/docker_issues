@@ -1,6 +1,7 @@
 defmodule BackendWeb.TaskView do
   use BackendWeb, :view
   alias BackendWeb.TaskView
+  alias BackendWeb.UserView
 
   def render("index.json", %{tasks: tasks}) do
     render_many(tasks, TaskView, "task.json")
@@ -17,7 +18,9 @@ defmodule BackendWeb.TaskView do
     :title,
     :description,
     :position,
-    :list_id
+    :list_id,
+    :assignee_id
     ])
+    |> Map.merge( %{assignee: render_one(task.assignee_user, UserView, "user.json" )})
   end
 end

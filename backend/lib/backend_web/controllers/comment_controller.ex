@@ -17,8 +17,7 @@ defmodule BackendWeb.CommentController do
   end
 
   def create(%{assigns: assigns} = conn, params) do
-    comment_params = Map.put(params, "created_by_id", assigns.current_user.id)
-    with {:ok, %Comment{} = comment} <- Comments.create_comment(comment_params),
+    with {:ok, %Comment{} = comment} <- Comments.create_comment(params),
          comment <- Comments.get_comment!(comment.id, [:created_by_user]) do
       conn
       |> put_status(:created)

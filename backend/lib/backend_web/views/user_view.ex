@@ -10,10 +10,12 @@ defmodule BackendWeb.UserView do
     render_one(user, UserView, "user.json")
   end
 
+  def render("user.json", %{user: user, token: token } = a ) do
+    Map.take(user, [:id, :email])
+    |> Map.put(:token, token)
+  end
+
   def render("user.json", %{user: user } = a ) do
     Map.take(user, [:id, :email])
-    |> Map.merge(%{ boards: render_many(user.boards, BackendWeb.BoardView, "board.json") })
-    |> Map.merge( %{ token: Map.get(a,:token) })
-
   end
 end

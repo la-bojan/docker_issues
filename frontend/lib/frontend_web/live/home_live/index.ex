@@ -12,12 +12,17 @@ defmodule FrontendWeb.Live.HomeLive.Index do
 
     current_user = session["current_user"]
     {:ok,user} = Users.get_user(%{id: current_user})
+    {:ok,boards} = Boards.get_user_boards(%{id: current_user})
+
+    access_token = session["access_token"]
 
     socket =
       socket
       |> assign_defaults()
       |> assign(:user, user)
+      |> assign(:boards,boards)
       |> assign(:current_user, current_user)
+      |> assign(:access_token,access_token)
 
     {:ok, socket}
   end
@@ -51,6 +56,16 @@ defmodule FrontendWeb.Live.HomeLive.Index do
     {:noreply, socket}
   end
 
+
+  def handle_event("add-new-member", %{"board-id" => board_id,"board-name" => board_name}, socket) do
+
+    socket =
+      socket
+      |> assign(:current_board_id, board_id)
+      |> assign(:current_board_name, board_name)
+      |> assign(:current_modal, :add_new_member_form )
+    {:noreply, socket}
+  end
 
 
   def handle_event("close-modal", _params, socket) do

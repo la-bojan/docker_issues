@@ -43,26 +43,38 @@ defmodule FrontendWeb.Live.BoardLive.ShowBoard do
 
 
   @impl true
-  def handle_event("task-comments", %{"id" => id}, socket) do
+  def handle_event("task-comments", %{"id" => id} = params, socket) do
 
-    IO.inspect("aaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbccccccccccccccccccccccc")
-    IO.inspect(id)
+    {:ok,current_task} = Tasks.get_task(params)
+
     socket =
         socket
         |> assign(:current_modal, :comment_form)
         |> assign(:current_task_id, id)
+        |> assign(:current_task, current_task)
 
     {:noreply, socket}
   end
 
   def handle_info(:refresh_board,socket) do
     current_user = socket.assigns.current_user
+
     {:ok,user} = Users.get_user(%{id: current_user})
 
     socket =
       socket
       |> assign_defaults()
       |> assign(:user,user)
+
+    {:noreply,socket}
+  end
+
+  def handle_info({ :list_created, list},socket ) do
+    lists = socket.assigns.lists ++ [list]
+    socket =
+      socket
+      |> assign(:lists,lists)
+      |> assign(:current_modal, nil)
 
     {:noreply,socket}
   end
@@ -190,6 +202,7 @@ defmodule FrontendWeb.Live.BoardLive.ShowBoard do
       |> assign(:add_to_list, nil)
       |> assign(:current_modal, nil)
       |> assign(:current_user, nil)
+      |> assign(:current_task, nil)
 
 
   end

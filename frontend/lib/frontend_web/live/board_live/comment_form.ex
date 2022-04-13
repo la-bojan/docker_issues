@@ -3,17 +3,27 @@ defmodule FrontendWeb.Live.BoardLive.CommentForm do
   import Phoenix.LiveView.Helpers
 
   alias FrontendWeb.Schemas.Comment
+  alias FrontendWeb.Schemas.User
   alias FrontendWeb.Api.Comments
+  alias FrontendWeb.Api.Users
+  alias FrontendWeb.Api.Tasks
+
 
   @impl true
   def mount(_params, session, socket) do
 
-    current_task_id = session["current_task_id"]
+    current_task = session["current_task"]
+    current_task_id = session["task_id"]
+    access_token = session["access_token"]
+    params = %{"task_id" => current_task_id,"access_token" => access_token}
 
+    {:ok,comments} = Comments.get_comments(params)
     socket =
       socket
       |> assign_defaults(session)
       |> assign(:current_task_id,current_task_id)
+      |> assign(:comments, comments)
+      |> assign(:current_task, current_task)
 
     {:ok, socket}
   end
@@ -39,13 +49,60 @@ defmodule FrontendWeb.Live.BoardLive.CommentForm do
     end
   end
 
+  def handle_event("search_user", %{"user" => %{"email" => email } = _user} = _params, %{assigns: assigns} = socket) do
+
+
+    users =
+      Enum.filter(assigns.members,
+        fn m ->
+          String.contains?(m.email, email)
+        end)
+    socket =
+      socket
+      |> assign(search_query: email)
+      |> assign(results: users)
+
+    {:noreply, socket}
+  end
+
+  def handle_event("update_task", %{"assignee_id" => assignee_id}, %{assigns: assigns} = socket) do
+
+    assignee_id = String.to_integer(assignee_id)
+    params = %{"assignee_id" => assignee_id}
+
+    params = Map.merge(%{"access_token" => assigns.access_token}, params)
+
+
+    with {:ok, task} <- Tasks.update_task(assigns.current_task, params) do
+      #send(socket.parent_pid, {:task_updated, task})
+      socket =
+        socket
+        |> assign(edit_task: nil)
+        |> assign(current_task_id: task.id)
+        |> put_flash(:info, "Task updated successfully")
+      {:noreply, socket}
+    else
+      _error ->
+        {:noreply,
+        socket
+        |> put_flash(:error, "Unable to update task.")} #expand more on error handling
+    end
+  end
+
   defp assign_defaults(socket, session) do
+
+
+    {:ok,members} = Users.all_users(%{})
+
     socket
     |> assign(current_user: session["current_user"])
     |> assign(access_token: session["access_token"])
     |> assign(flash_message: nil)
     |> assign(board_id: session["board_id"])
+    |> assign(members: members)
     |> assign(changeset: Comment.changeset(%Comment{}))
+    |> assign(user_changeset: User.changeset(%User{}))
+    |> assign(results: nil)
   end
 
 end

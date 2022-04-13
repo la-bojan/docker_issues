@@ -16,8 +16,8 @@ defmodule BackendWeb.CommentView do
       id: comment.id,
       content: comment.content,
       created_by_id: comment.created_by_id,
-      inserted_at: comment.inserted_at,
-      created_by_user: comment.created_by_user
+      task_id: comment.task_id,
+      inserted_at: comment.inserted_at
     }
   end
 end

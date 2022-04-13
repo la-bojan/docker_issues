@@ -8,10 +8,11 @@ defmodule Backend.Boards.Boards do
 
   def list_boards do
     Repo.all(Board)
-    |> Repo.preload(lists: [:tasks])
+    |> Repo.preload(lists: [tasks: [:assignee_user] ])
+    |> Repo.preload(:board_permissions)
   end
 
-  def get_board!(id),do: Repo.get!(Board, id)|> Repo.preload(lists: [:tasks])
+  def get_board!(id),do: Repo.get!(Board, id)|> Repo.preload(lists: [tasks: [:assignee_user]])  |> Repo.preload(:board_permissions)
 
   def create_board(attrs \\ %{}) do
     {:ok,board} = %Board{}
@@ -44,10 +45,12 @@ defmodule Backend.Boards.Boards do
 
   def user_boards(user_id) do
     query =
-      from l in Board,
-        where: l.user_id == ^user_id
+      from b in Board,
+      join: p in BoardPermission, on: b.id == p.board_id and p.user_id == ^user_id,
+      select: b
     Repo.all(query)
     |>  Repo.preload(lists: [:tasks])
+    |>  Repo.preload( :board_permissions )
   end
 
 
@@ -62,6 +65,7 @@ defmodule Backend.Boards.Boards do
   def get_board_permission!(board_id, user_id), do: Repo.get_by!(BoardPermission, [board_id: board_id, user_id: user_id])
 
   def create_board_permission(attrs \\ %{}) do
+
     %BoardPermission{}
     |> BoardPermission.changeset(attrs)
     |> Repo.insert()

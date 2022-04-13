@@ -7,6 +7,7 @@ defmodule BackendWeb.Router do
 
   pipeline :auth do
     plug BackendWeb.Auth.Pipeline
+    plug BackendWeb.Auth.CurrentUser
   end
 
   scope "/api", BackendWeb do

@@ -2,6 +2,7 @@ defmodule FrontendWeb.Schemas.Task do
   use Ecto.Schema
 
   alias FrontendWeb.Schemas.List
+  alias FrontendWeb.Schemas.User
 
   import Ecto.Changeset
 
@@ -11,6 +12,7 @@ defmodule FrontendWeb.Schemas.Task do
     :title,
     :description,
     :list_id,
+    :assignee_id,
     :position,
     :inserted_at,
     :updated_at
@@ -24,6 +26,7 @@ defmodule FrontendWeb.Schemas.Task do
     field(:position,:decimal)
 
     belongs_to :list, List, type: :integer
+    belongs_to :assignee, User, foreign_key: :assignee_id,type: :integer
 
     timestamps(type: :utc_datetime_usec)
   end
@@ -33,6 +36,7 @@ defmodule FrontendWeb.Schemas.Task do
     :title,
     :description,
     :list_id,
+    :assignee_id,
     :position,
     :inserted_at,
     :updated_at
@@ -40,7 +44,12 @@ defmodule FrontendWeb.Schemas.Task do
 
   def schema_fields, do: @schema_fields
 
-  def changeset(struct, params \\ %{}), do: cast(struct, params, @schema_fields)
+  def changeset(struct, params \\ %{}) do
+    struct
+    |> cast( params, @schema_fields)
+    |> cast_assoc(:assignee)
+  end
+
 
   defmodule Query do
     defstruct []
@@ -68,7 +77,8 @@ defmodule FrontendWeb.Schemas.Task do
     :title,
     :description,
     :position,
-    :list_id
+    :list_id,
+    :assignee_id
   ]
 
   def update_attrs, do: @update_attrs
@@ -77,14 +87,15 @@ defmodule FrontendWeb.Schemas.Task do
     types = %{
       title: :string,
       list_id: :integer,
+      assignee_id: :integer,
       id: :integer,
       position: :decimal,
       description: :boolean
     }
-
-    {struct, types}
-    |> cast(params, Map.keys(types))
-    |> validate_required([:id])
+    cast(struct,params,update_attrs)
+    #struct
+    #|> cast(params, Map.keys(types))
+    #|> validate_required([:id])
   end
 
   @delete_attrs [

@@ -1,7 +1,6 @@
 defmodule FrontendWeb.Live.BoardLive.ListForm do
   use Phoenix.LiveView
   import Phoenix.LiveView.Helpers
-  import FrontendWeb.ListForm
 
   alias FrontendWeb.Schemas.List
   alias FrontendWeb.Api.Lists
@@ -19,10 +18,10 @@ defmodule FrontendWeb.Live.BoardLive.ListForm do
 
     params = Map.merge(%{"access_token" => socket.assigns.access_token }, list_params)
 
-    with {:ok, board} <- Lists.create_list(params) do
+    with {:ok, list} <- Lists.create_list(params) do
       socket = put_flash(socket, :info, "List created successfully!")
-      send(socket.parent_pid, :refresh_board)
-      {:noreply, redirect(socket, socket)}
+      send(socket.parent_pid, {:list_created, list})
+      {:noreply, socket}
     else
       {:error,  %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, changeset: %{changeset | action: :create})}

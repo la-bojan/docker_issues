@@ -1,14 +1,49 @@
+<%= for comment <- @comments do %>
+   <b><%= comment.content %></b>
+   <br/>
+<% end %>
+
+
 <.form let={f} for={@changeset}  phx-submit="add-new-comment">
   <div>
 
     <%= text_input f , :content, placeholder: "Content" %>
 
-    <p> ID of current task is </p>
-    <% @current_task_id %>
-
     <%= hidden_input f, :created_by_id, value: @current_user %>
-    <%# <%= hidden_input f, :task_id, value: @current_task %> 
-  
+    <%= hidden_input f, :task_id, value: @current_task_id %> 
+
+
+
     <%= submit "Post comment" %>
   </div>
 </.form>
+
+
+
+<%= if @current_task.assignee_id == nil do %>
+<.form let={f} for={@user_changeset} phx_change =  "search_user">
+  <div>
+
+    <%= text_input f, :email, class: "search-input", placeholder: "Search User", autocomplete: "off", data_focus: "true", phx_debounce: 200 %>
+
+    <%= hidden_input f, :task_id, value: @current_task_id %> 
+    <button type="submit" disabled style="display: none" aria-hidden="true"></button>
+  </div>
+</.form>
+ <%= case @results do%>
+      <% nil -> %>
+      <% _ -> %>
+        <div class="search-results">
+          <%= if @results == "" do%>
+            <div class="item" phx-click="update_task" phx-value-unassign="true">Not Assigned</div>
+          <% end %>
+          <%= for user <- @results do %>
+            <div class="item" phx-click="update_task" phx-value-assignee_id= { user.id }   ><%= user.email %></div>
+          <% end %>
+        </div>
+  <% end %>
+<% else  %>
+  <div>
+    Assigned to : <%= @current_task.assignee.email %>
+  </div>
+<% end %>
