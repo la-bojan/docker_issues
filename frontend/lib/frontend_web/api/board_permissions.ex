@@ -43,10 +43,8 @@ defmodule FrontendWeb.Api.BoardPermissions do
     {access_token, params} = Map.pop(params, "access_token")
 
     with %{valid?: true} = changeset <- BoardPermission.create_changeset(%BoardPermission{}, params),
-        b = IO.puts("++++++++++++++++++++++++++++++++++++++"),
          board_permission = Changeset.apply_changes(changeset),
          client = client(access_token),
-         a = IO.inspect(board_permission),
          {:ok, %{body: body, status: status}} when status in @success_codes <-
           Tesla.post(client, url, board_permission) do
         {:ok, from_response(body)}

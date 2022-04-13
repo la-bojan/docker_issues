@@ -24,6 +24,20 @@ defmodule FrontendWeb.Live.HomeLive.MemberForm do
 
   end
 
+  defp assign_defaults(socket, session) do
+
+    {:ok,members} = Users.all_users(%{})
+
+    socket
+    |> assign(current_user: session["current_user"])
+    |> assign(access_token: session["access_token"])
+    |> assign(members: members)
+    |> assign(flash_message: nil)
+    |> assign(user_changeset: User.changeset(%User{}))
+    |> assign(results: nil)
+    |> assign(:permission, :read)
+  end
+
 
   def render(assigns), do: Phoenix.View.render(FrontendWeb.MemberForm, "member_form.html", assigns)
 
@@ -42,15 +56,16 @@ defmodule FrontendWeb.Live.HomeLive.MemberForm do
     {:noreply, socket}
   end
 
-  def handle_event("select_permisson", %{"permisson" => permission}, %{assigns: assigns} = socket) do
+  def handle_event("select_permission", params, socket) do
 
-
+    IO.inspect(params)
+    permission = params["atom"]["permission"]
     socket =
       socket
-      |> assign(:permisson, permission)
+      |> assign(:permission, String.to_atom(permission))
 
 
-    {:noreplay,socket}
+    {:noreply,socket}
   end
 
   def handle_event("craete_board_permission", %{"assignee_id" => assignee_id}, %{assigns: assigns} = socket) do
@@ -61,7 +76,7 @@ defmodule FrontendWeb.Live.HomeLive.MemberForm do
     params = %{
       "user_id" => assignee_id,
       "board_id" => String.to_integer(assigns.board_id),
-      "permission_type" => :read,
+      "permission_type" => assigns.permission,
       "access_token" => socket.assigns.access_token
     }
 
@@ -80,23 +95,11 @@ defmodule FrontendWeb.Live.HomeLive.MemberForm do
       _error ->
         {:noreply,
         socket
-        |> put_flash(:error, "Unable to create board permisson.")} #expand more on error handling
+        |> put_flash(:error, "Unable to create board permission.")} #expand more on error handling
     end
   end
 
 
 
-  defp assign_defaults(socket, session) do
 
-    {:ok,members} = Users.all_users(%{})
-
-    socket
-    |> assign(current_user: session["current_user"])
-    |> assign(access_token: session["access_token"])
-    |> assign(members: members)
-    |> assign(flash_message: nil)
-    |> assign(user_changeset: User.changeset(%User{}))
-    |> assign(results: nil)
-    |> assign(:permisson, :manage)
-  end
 end

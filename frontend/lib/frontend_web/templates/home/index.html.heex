@@ -14,6 +14,11 @@ phx-hook= "SortableList"
         <%= board.name %>
         <br/>
         <br/>
+        <%= for user <- board.board_permissions do %>
+            a <%= user.user_id  %>><br/>
+            b <%= user.permission_type  %>><br/>
+        <%end %>
+
         <%= link to: Routes.board_path(@socket,:show,board.id) do %>
                 <button>  Show Board </button>    
             <%end %>

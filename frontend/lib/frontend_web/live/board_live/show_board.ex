@@ -79,6 +79,7 @@ defmodule FrontendWeb.Live.BoardLive.ShowBoard do
     {:noreply,socket}
   end
 
+
   def handle_event("new-task", %{"list-id" => list_id,"list-title" => list_title}, socket) do
     socket =
       socket

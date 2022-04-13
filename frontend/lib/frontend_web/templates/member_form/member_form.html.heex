@@ -1,14 +1,10 @@
 Kurac za dodavanje novog membera 
 <br/>
 Choose a permission 
-<label for="permissons">Choose a permisson:</label>
-
-<select name="permissons" id="permisson">
-  <option phx-click="select_permisson" phx-value-permission="manage">Manage</option>
-  <option phx-click="select_permisson" phx-value-permission="write">Write</option>
-  <option phx-click="select_permisson" phx-value-permission="read">Read</option>
-</select>
-
+<label for="permissions">Choose a permission:</label>
+<.form for = {:atom} let = {r} phx_change = "select_permission">
+  <%= select r, :permission, [Write: "write",Read: "read",Manage: "manage"], value: Atom.to_string(@permission) %>
+</.form>
 <.form let={f} for={@user_changeset} phx_change =  "search_user">
   <div>
 

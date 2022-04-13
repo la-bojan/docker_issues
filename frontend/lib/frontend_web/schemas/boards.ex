@@ -4,6 +4,7 @@ defmodule FrontendWeb.Schemas.Board do
   import Ecto.Changeset
 
   alias FrontendWeb.Schemas.List
+  alias FrontendWeb.Schemas.BoardPermission
 
   @derive {Jason.Encoder,
   only: [
@@ -22,6 +23,7 @@ defmodule FrontendWeb.Schemas.Board do
     field(:name, :string)
 
     has_many :lists, List, foreign_key: :board_id, references: :id
+    has_many :board_permissions, BoardPermission, foreign_key: :board_id, references: :id
 
     timestamps(type: :utc_datetime_usec)
     field(:deleted_at, :utc_datetime_usec)
@@ -45,6 +47,7 @@ defmodule FrontendWeb.Schemas.Board do
     struct
     |> cast(params, @schema_fields)
     |> cast_assoc(:lists)
+    |> cast_assoc(:board_permissions)
   end
 
 
