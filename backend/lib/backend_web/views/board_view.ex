@@ -2,6 +2,7 @@ defmodule BackendWeb.BoardView do
   use BackendWeb, :view
   alias BackendWeb.BoardView
   alias BackendWeb.ListView
+  alias BackendWeb.UserView
   alias BackendWeb.BoardPermissionView
 
   def render("index.json", %{boards: boards}) do
@@ -23,6 +24,7 @@ defmodule BackendWeb.BoardView do
     Map.take(board, [:id, :name, :user_id])
     |> Map.merge( %{lists: render_many(board.lists, ListView, "list.json" )})
     |> Map.merge( %{board_permissions: render_many(board.board_permissions, BoardPermissionView, "board_permission.json")})
+    |> Map.merge( %{user: render_one(board.user, UserView, "user.json" )})
 
   end
 end

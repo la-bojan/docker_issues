@@ -20,9 +20,9 @@ defmodule FrontendWeb.Live.BoardLive.TaskForm do
 
     params = Map.merge(%{"access_token" => socket.assigns.access_token }, task_params)
 
-    with {:ok, board} <- Tasks.create_task(params) do
+    with {:ok, task} <- Tasks.create_task(params) do
       socket = put_flash(socket, :info, "Task created successfully!")
-      send(socket.parent_pid, :refresh_user)
+      send(socket.parent_pid, {:task_created, task})
       {:noreply, socket}
     else
       {:error,  %Ecto.Changeset{} = changeset} ->

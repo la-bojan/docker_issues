@@ -2,6 +2,7 @@ defmodule BackendWeb.CommentView do
   use BackendWeb, :view
   alias BackendWeb.CommentView
   alias BackendWeb.ListView
+  alias BackendWeb.UserView
 
   def render("index.json", %{comments: comments}) do
     render_many(comments, CommentView, "comment.json")
@@ -12,12 +13,15 @@ defmodule BackendWeb.CommentView do
   end
 
   def render("comment.json", %{comment: comment}) do
-    %{
-      id: comment.id,
-      content: comment.content,
-      created_by_id: comment.created_by_id,
-      task_id: comment.task_id,
-      inserted_at: comment.inserted_at
-    }
+    comment
+    |> Map.take([
+      :id,
+      :content,
+      :created_by_id,
+      :task_id,
+      :inserted_at
+    ])
+
+    |> Map.merge( %{user: render_one(comment.created_by_user, UserView, "user.json" )})
   end
 end

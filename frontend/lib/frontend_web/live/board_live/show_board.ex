@@ -4,6 +4,7 @@ defmodule FrontendWeb.Live.BoardLive.ShowBoard do
   alias FrontendWeb.Api.Users
   alias FrontendWeb.Api.Tasks
   alias FrontendWeb.Api.Lists
+  alias FrontendWeb.Api.Boards
 
 
   @impl true
@@ -14,6 +15,8 @@ defmodule FrontendWeb.Live.BoardLive.ShowBoard do
     access_token = session["access_token"]
     {:ok,user} = Users.get_user(%{id: current_user})
 
+    {:ok,board} = Boards.get_board(%{id: current_board.id})
+
     lists = current_board.lists
 
     socket =
@@ -21,7 +24,7 @@ defmodule FrontendWeb.Live.BoardLive.ShowBoard do
       |> assign_defaults()
       |> assign(:user, user)
       |> assign(:current_user, current_user)
-      |> assign(:current_board, current_board)
+      |> assign(:current_board, board)
       |> assign(:access_token,access_token)
       |> assign(:lists, lists)
 
@@ -79,6 +82,52 @@ defmodule FrontendWeb.Live.BoardLive.ShowBoard do
     {:noreply,socket}
   end
 
+  def handle_info({ :task_created, task},socket ) do
+
+    current_board = socket.assigns.current_board
+    {:ok,board} = Boards.get_board(%{id: current_board.id})
+
+    lists = board.lists
+
+    socket =
+      socket
+      |> assign(:current_modal, nil)
+      |> assign(:current_board, board)
+      |> assign(:lists,lists)
+    {:noreply,socket}
+  end
+
+  def handle_info(:comment_deleted,socket ) do
+
+    current_board = socket.assigns.current_board
+    {:ok,board} = Boards.get_board(%{id: current_board.id})
+
+    lists = board.lists
+
+    socket =
+      socket
+      |> assign(:current_modal, nil)
+      |> assign(:current_board, board)
+      |> assign(:lists,lists)
+    {:noreply,socket}
+  end
+
+  def handle_event("delete-task", %{"id" => id}, socket) do
+
+    {:ok, _} = Tasks.delete_task!(%{"id" => id})
+
+    current_board = socket.assigns.current_board
+    {:ok,board} = Boards.get_board(%{id: current_board.id})
+
+    lists = board.lists
+
+    socket =
+      socket
+      |> assign(:current_modal, nil)
+      |> assign(:current_board, board)
+      |> assign(:lists,lists)
+    {:noreply,socket}
+  end
 
   def handle_event("new-task", %{"list-id" => list_id,"list-title" => list_title}, socket) do
     socket =
@@ -167,25 +216,22 @@ defmodule FrontendWeb.Live.BoardLive.ShowBoard do
     {:noreply,socket}
   end
 
-  def handle_event("delete-task", %{"id" => id}, socket) do
 
-    {:ok, _} = Tasks.delete_task!(%{"id" => id})
-
-    socket =
-      socket
-      |> assign_defaults()
-
-    {:noreply,socket}
-  end
 
   def handle_event("delete-list", %{"id" => id}, socket) do
 
     {:ok, _} = Lists.delete_list(%{"id" => id})
 
+    current_board = socket.assigns.current_board
+    {:ok,board} = Boards.get_board(%{id: current_board.id})
+
+    lists = board.lists
+
     socket =
       socket
-      |> assign_defaults()
-
+      |> assign(:current_modal, nil)
+      |> assign(:current_board, board)
+      |> assign(:lists,lists)
     {:noreply,socket}
   end
 

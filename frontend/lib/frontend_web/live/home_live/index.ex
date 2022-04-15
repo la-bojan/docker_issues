@@ -6,6 +6,7 @@ defmodule FrontendWeb.Live.HomeLive.Index do
   alias FrontendWeb.Api.Tasks
   alias FrontendWeb.Api.Lists
   alias FrontendWeb.Api.Boards
+  alias FrontendWeb.Api.BoardPermissions
 
   @impl true
   def mount( _params,session, socket) do
@@ -25,6 +26,17 @@ defmodule FrontendWeb.Live.HomeLive.Index do
       |> assign(:access_token,access_token)
 
     {:ok, socket}
+  end
+
+
+  def assign_defaults(socket) do
+    socket =
+      socket
+      |> assign(:current_list, nil)
+      |> assign(:current_board, nil)
+      |> assign(:current_modal, nil)
+      |> assign(:current_user, nil)
+
   end
 
   def render(assigns) do
@@ -80,7 +92,30 @@ defmodule FrontendWeb.Live.HomeLive.Index do
     {:noreply, socket}
   end
 
+  def handle_event("remove-member", %{"board-permission-id" => board_permission_id }, socket) do
 
+    {:ok, _} = BoardPermissions.delete_board_permission(%{"id" => board_permission_id})
+
+    current_user = socket.assigns.current_user
+    {:ok,user} = Users.get_user(%{id: current_user})
+    socket =
+      socket
+      |> assign_defaults()
+      |> assign(:user,user)
+
+    {:noreply,socket}
+  end
+
+  def handle_event("select_permission", params, socket) do
+
+    permission = params["atom"]["permission"]
+    socket =
+      socket
+      |> assign(:permission, String.to_atom(permission))
+
+
+    {:noreply,socket}
+  end
 
   def handle_event("delete-board", %{"id" => id}, socket) do
 
@@ -114,15 +149,20 @@ defmodule FrontendWeb.Live.HomeLive.Index do
     {:noreply,socket}
   end
 
-  def assign_defaults(socket) do
+  def handle_info(:board_permission_created, socket) do
+
+    current_user = socket.assigns.current_user
+    {:ok,user} = Users.get_user(%{id: current_user})
+
     socket =
       socket
-      |> assign(:current_list, nil)
-      |> assign(:current_board, nil)
-      |> assign(:current_modal, nil)
-      |> assign(:current_user, nil)
+      |> assign_defaults()
+      |> assign(:user,user)
 
+    {:noreply,socket}
   end
+
+
 
 
 end

@@ -13,9 +13,11 @@ defmodule FrontendWeb.Live.BoardLive.CommentForm do
   def mount(_params, session, socket) do
 
     current_task = session["current_task"]
+    current_user = session["current_user"]
     current_task_id = session["task_id"]
     access_token = session["access_token"]
     params = %{"task_id" => current_task_id,"access_token" => access_token}
+
 
     {:ok,comments} = Comments.get_comments(params)
     socket =
@@ -24,8 +26,25 @@ defmodule FrontendWeb.Live.BoardLive.CommentForm do
       |> assign(:current_task_id,current_task_id)
       |> assign(:comments, comments)
       |> assign(:current_task, current_task)
+      |> assign(:current_user, current_user)
 
     {:ok, socket}
+  end
+
+  defp assign_defaults(socket, session) do
+
+
+    {:ok,members} = Users.all_users(%{})
+
+    socket
+    |> assign(current_user: session["current_user"])
+    |> assign(access_token: session["access_token"])
+    |> assign(flash_message: nil)
+    |> assign(board_id: session["board_id"])
+    |> assign(members: members)
+    |> assign(changeset: Comment.changeset(%Comment{}))
+    |> assign(user_changeset: User.changeset(%User{}))
+    |> assign(results: nil)
   end
 
 
@@ -50,8 +69,6 @@ defmodule FrontendWeb.Live.BoardLive.CommentForm do
   end
 
   def handle_event("search_user", %{"user" => %{"email" => email } = _user} = _params, %{assigns: assigns} = socket) do
-
-
     users =
       Enum.filter(assigns.members,
         fn m ->
@@ -65,7 +82,7 @@ defmodule FrontendWeb.Live.BoardLive.CommentForm do
     {:noreply, socket}
   end
 
-  def handle_event("update_task", %{"assignee_id" => assignee_id}, %{assigns: assigns} = socket) do
+  def handle_event("update_assignee", %{"assignee_id" => assignee_id}, %{assigns: assigns} = socket) do
 
     assignee_id = String.to_integer(assignee_id)
     params = %{"assignee_id" => assignee_id}
@@ -75,6 +92,7 @@ defmodule FrontendWeb.Live.BoardLive.CommentForm do
 
     with {:ok, task} <- Tasks.update_task(assigns.current_task, params) do
       #send(socket.parent_pid, {:task_updated, task})
+      send(socket.parent_pid, :refresh_board)
       socket =
         socket
         |> assign(edit_task: nil)
@@ -89,20 +107,38 @@ defmodule FrontendWeb.Live.BoardLive.CommentForm do
     end
   end
 
-  defp assign_defaults(socket, session) do
+  def handle_event("delete-comment", %{"comment-id" => comment_id}, socket) do
 
+    {:ok, _comment} = Comments.delete_comment(%{"id" => comment_id})
 
-    {:ok,members} = Users.all_users(%{})
-
-    socket
-    |> assign(current_user: session["current_user"])
-    |> assign(access_token: session["access_token"])
-    |> assign(flash_message: nil)
-    |> assign(board_id: session["board_id"])
-    |> assign(members: members)
-    |> assign(changeset: Comment.changeset(%Comment{}))
-    |> assign(user_changeset: User.changeset(%User{}))
-    |> assign(results: nil)
+    send(socket.parent_pid, :comment_deleted)
+    {:noreply, socket}
   end
+
+  def handle_event("delete_assignee", %{"assignee_id" => assignee_id}, %{assigns: assigns} = socket) do
+
+    assignee_id = String.to_integer(assignee_id)
+    params = %{"assignee_id" => nil}
+
+    params = Map.merge(%{"access_token" => assigns.access_token}, params)
+
+
+    with {:ok, task} <- Tasks.update_task(assigns.current_task, params) do
+      send(socket.parent_pid, :refresh_board)
+      socket =
+        socket
+        |> assign(edit_task: nil)
+        |> assign(current_task_id: task.id)
+        |> put_flash(:info, "Task updated successfully")
+      {:noreply, socket}
+    else
+      _error ->
+        {:noreply,
+        socket
+        |> put_flash(:error, "Unable to update task.")} #expand more on error handling
+    end
+  end
+
+
 
 end

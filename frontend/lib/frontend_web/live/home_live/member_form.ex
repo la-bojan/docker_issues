@@ -56,17 +56,7 @@ defmodule FrontendWeb.Live.HomeLive.MemberForm do
     {:noreply, socket}
   end
 
-  def handle_event("select_permission", params, socket) do
 
-    IO.inspect(params)
-    permission = params["atom"]["permission"]
-    socket =
-      socket
-      |> assign(:permission, String.to_atom(permission))
-
-
-    {:noreply,socket}
-  end
 
   def handle_event("craete_board_permission", %{"assignee_id" => assignee_id}, %{assigns: assigns} = socket) do
 
@@ -81,14 +71,10 @@ defmodule FrontendWeb.Live.HomeLive.MemberForm do
     }
 
     with {:ok, board_permission} <- BoardPermissions.create_board_permission(params) do
-      board_permissions = assigns.board_permissions ++ [board_permission]
-      members = assigns.members ++ [board_permission.user]
-      #send(socket.parent_pid, {:task_updated, task})
+      send(socket.parent_pid, {:board_permission_created, board_permission})
       socket =
         socket
         |> assign(edit_task: nil)
-        |> assign(:members, members)
-        |> assign(:board_permissions, board_permissions)
         |> put_flash(:info, "Board permission created successfully")
       {:noreply, socket}
     else

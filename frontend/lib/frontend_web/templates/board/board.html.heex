@@ -2,7 +2,7 @@
 <div class = "board-container" >
 <%= @current_board.name %>
 <br/>
-<button  phx-click = "new-list" phx-value-board-id = {@current_board.id} phx-value-board-name = {@current_board.name} > New List </button>
+<button  phx-click = "new-list" phx-value-board-id = {@current_board.id} phx-value-board-name = {@current_board.name} class="btn" title="Add new list" ><i class="fa fa-plus-square" aria-hidden="true"></i></button>
 <div class = "lists"
 phx-hook="SortableList" id= "board_list"
 data-enabled={ true }
@@ -18,6 +18,12 @@ data-sortable-list-id={ @current_board.id }
     >
         <div class = "list-container">
             <b><%= list.title %></b>
+                <%= if not( @current_modal == :task_form && list.id == @add_to_list) do %>
+                    <button  phx-click = "new-task"  phx-value-list-id = {list.id} phx-value-list-title = {list.title} class = "btn"  title = "Add new task"><i class="fa fa-plus-square" aria-hidden="true"></i></button>
+                <% end %>
+            <%= live_patch to: "#", phx_click: "delete-list", phx_value_id: list.id do %>
+                <button class = "btn" title = "Delete list"><i class="fa fa-trash"></i></button>    
+            <%end %>
             <br/>   
                 <div class = "tasks"
                 phx-hook="SortableList" id= {"board_list_#{list.id}"}
@@ -39,7 +45,7 @@ data-sortable-list-id={ @current_board.id }
                         <%= task.description %>
                         <br/>
                         <%= live_patch to: "#", phx_click: "task-comments", phx_value_id: task.id do %>
-                            <button>  Comments </button>
+                            <button> Details </button>
                         <% end %>
                         <%= live_patch to: "#", phx_click: "delete-task", phx_value_id: task.id do %>
                             <button>  Delete </button>
@@ -56,13 +62,6 @@ data-sortable-list-id={ @current_board.id }
                         <button  phx-click = "close-modal"  > Close </button> 
                     </div>
                 <%end %>
-                <%= if not( @current_modal == :task_form && list.id == @add_to_list) do %>
-                    <button  phx-click = "new-task"  phx-value-list-id = {list.id} phx-value-list-title = {list.title} > New Task </button>
-                <% end %>
-               
-            <%= live_patch to: "#", phx_click: "delete-list", phx_value_id: list.id do %>
-                <button>  Delete List </button>    
-            <%end %>
         </div>
     </div>
     <% end %>
@@ -88,6 +87,7 @@ data-sortable-list-id={ @current_board.id }
         <%= live_render(@socket, FrontendWeb.Live.BoardLive.CommentForm,
         id: "comment_form_#{(@current_task_id)}",session: %{
             "task_id" => @current_task_id,
+            "current_user" => @current_user,
             "current_task" => @current_task,
             "access_token" => @access_token
         }) %>

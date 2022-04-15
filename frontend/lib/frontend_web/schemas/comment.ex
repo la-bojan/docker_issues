@@ -2,7 +2,7 @@ defmodule FrontendWeb.Schemas.Comment do
   use Ecto.Schema
 
   import Ecto.Changeset
-
+  alias FrontendWeb.Schemas.User
 
   @derive {Jason.Encoder,
   only: [
@@ -19,9 +19,9 @@ defmodule FrontendWeb.Schemas.Comment do
   schema "comments" do
     field(:id, :integer, primary_key: true)
     field(:task_id, :integer)
-    field(:created_by_id, :integer)
     field(:content, :string)
 
+    belongs_to :user, User, foreign_key: :created_by_id, type: :integer
 
     timestamps(type: :utc_datetime_usec)
     field(:deleted_at, :utc_datetime_usec)
@@ -45,6 +45,7 @@ defmodule FrontendWeb.Schemas.Comment do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @schema_fields)
+    |> cast_assoc(:user)
   end
 
 

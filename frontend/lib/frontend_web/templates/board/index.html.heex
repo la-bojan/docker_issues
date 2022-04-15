@@ -1,12 +1,12 @@
 <%= link to: Routes.home_path(@conn,:index) do %>
-  <button>  Back </button>    
+  <button class = "btn" title = "Back"><i class="fa fa-backward" aria-hidden="true"></i></button>    
 <%end %>
 
 <span >
   <%= link to: Routes.session_path(FrontendWeb.Endpoint, :logout) do%>
       <button
         class="btn-logout"
-        type="button"> Logout </button>
+        type="button" class = "btn" title = "Sign-out"><i class="fa fa-sign-out" aria-hidden="true"></i></button>
   <% end %>
 </span>
 

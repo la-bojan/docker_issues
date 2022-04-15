@@ -8,8 +8,9 @@ defmodule Backend.Boards.Boards do
 
   def list_boards do
     Repo.all(Board)
+    |> Repo.preload(:user)
     |> Repo.preload(lists: [tasks: [:assignee_user] ])
-    |> Repo.preload(:board_permissions)
+    |> Repo.preload(board_permissions: [:user])
   end
 
   def get_board!(id),do: Repo.get!(Board, id)|> Repo.preload(lists: [tasks: [:assignee_user]])  |> Repo.preload(:board_permissions)
@@ -49,18 +50,20 @@ defmodule Backend.Boards.Boards do
       join: p in BoardPermission, on: b.id == p.board_id and p.user_id == ^user_id,
       select: b
     Repo.all(query)
+    |>  Repo.preload( :user )
     |>  Repo.preload(lists: [:tasks])
-    |>  Repo.preload( :board_permissions )
+    |>  Repo.preload( board_permissions: [:user] )
   end
 
 
   def list_boards_permission do
     Repo.all(BoardPermission)
+    |> Repo.preload(:user)
   end
 
   def get_board_permission!(id), do: Repo.get!(BoardPermission, id)
 
-  def get_board_permission!(id, preload) when is_list(preload), do: Repo.get!(BoardPermission, id) |> Repo.preload(preload)
+  def get_board_permission!(id, preload) when is_list(preload), do: Repo.get!(BoardPermission, id) |>  Repo.preload( :user ) |> Repo.preload(preload)
 
   def get_board_permission!(board_id, user_id), do: Repo.get_by!(BoardPermission, [board_id: board_id, user_id: user_id])
 

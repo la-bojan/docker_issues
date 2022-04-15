@@ -1,20 +1,30 @@
+
 <%= for comment <- @comments do %>
-   <b><%= comment.content %></b>
-   <br/>
+  <div class = "comment_section">
+    <b><%= comment.content %></b>
+    <b>By  <%= comment.user.email %></b><br/>
+    <b> at <%= comment.inserted_at %></b>
+
+    <%= if @current_user == comment.user.id do  %>
+    <button  phx-click = "delete-comment" phx-value-comment-id = {comment.id} class= "btn" title = "Delete comment" ><i class="fa fa-trash" aria-hidden="true"></i></button>
+    <% end %>
+    <br/>
+  </div>
 <% end %>
 
 
 <.form let={f} for={@changeset}  phx-submit="add-new-comment">
   <div>
 
+    <div>
     <%= text_input f , :content, placeholder: "Content" %>
-
+    <button type="submit" class="btn" ><i class="fa fa-comment" aria-hidden="true"></i></button>
+    </div>
     <%= hidden_input f, :created_by_id, value: @current_user %>
     <%= hidden_input f, :task_id, value: @current_task_id %> 
 
 
-
-    <%= submit "Post comment" %>
+   
   </div>
 </.form>
 
@@ -35,15 +45,16 @@
       <% _ -> %>
         <div class="search-results">
           <%= if @results == "" do%>
-            <div class="item" phx-click="update_task" phx-value-unassign="true">Not Assigned</div>
+            <div class="item" phx-click="update_assignee" phx-value-unassign="true">Not Assigned</div>
           <% end %>
           <%= for user <- @results do %>
-            <div class="item" phx-click="update_task" phx-value-assignee_id= { user.id }   ><%= user.email %></div>
+            <div class="item" phx-click="update_assignee" phx-value-assignee_id= { user.id }   ><%= user.email %></div>
           <% end %>
         </div>
   <% end %>
 <% else  %>
   <div>
     Assigned to : <%= @current_task.assignee.email %>
+    <button  phx-click = "delete_assignee" phx-value-assignee_id = {@current_task.assignee.id} > Remove assignee </button>
   </div>
 <% end %>

@@ -6,6 +6,7 @@ defmodule Backend.Comments.Comments do
 
   def all_comment do
     Repo.all(Comment)
+    |> Repo.preload(:created_by_user)
   end
 
   def all_task_comments(task_id, preload) do
@@ -14,6 +15,7 @@ defmodule Backend.Comments.Comments do
         where: c.task_id == ^task_id,
         preload: ^preload
     Repo.all(query)
+    |> Repo.preload(:created_by_user)
   end
 
   def get_comment!(id), do: Repo.get!(Comment, id)
