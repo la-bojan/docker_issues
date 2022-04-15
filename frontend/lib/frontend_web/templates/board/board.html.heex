@@ -1,32 +1,47 @@
-
+Your role is <%= @board_permission %>
 <div class = "board-container" >
 <%= @current_board.name %>
 <br/>
-<button  phx-click = "new-list" phx-value-board-id = {@current_board.id} phx-value-board-name = {@current_board.name} class="btn" title="Add new list" ><i class="fa fa-plus-square" aria-hidden="true"></i></button>
+<%= if @board_permission != :read do %>
+    <button  phx-click = "new-list" phx-value-board-id = {@current_board.id} phx-value-board-name = {@current_board.name} class="btn" title="Add new list" ><i class="fa fa-plus-square" aria-hidden="true"></i></button>
+<%end %>
 <div class = "lists"
-phx-hook="SortableList" id= "board_list"
+phx-hook={if @board_permission != :read, do:  "SortableList", else: ""}
+id= "board_list"
 data-enabled={ true }
 data-ghost-class="-ghost" 
 data-sortable-list-id={ @current_board.id }
 >   
     <%= for list <- Enum.sort(@lists, &(Decimal.compare(&1.position, &2.position) in [:eq, :lt])) do  %>
     <div class="list-column _item _handle"
-    draggable = "true"
+    draggable ={if @board_permission != :read, do:  "true", else: "false"}
     data-id= { list.position }
     data-resource-id= { list.id }
     data-type= "list" 
     >
         <div class = "list-container">
-            <b><%= list.title %></b>
+            <b>
+                <%= if @board_permission == :read do  %>
+                    <%= list.title %>
+                <% else %>
+                    <.form for = {:list} let = {r} phx_change = "list-title-change">  
+                        <%= text_input r, :title, value: list.title, phx_debounce: 400%>
+                        <%= hidden_input r, :list_id, value: list.id %>
+                    </.form>
+                <%end %>
+            </b>
+            <%= if @board_permission != :read do  %>
                 <%= if not( @current_modal == :task_form && list.id == @add_to_list) do %>
                     <button  phx-click = "new-task"  phx-value-list-id = {list.id} phx-value-list-title = {list.title} class = "btn"  title = "Add new task"><i class="fa fa-plus-square" aria-hidden="true"></i></button>
                 <% end %>
-            <%= live_patch to: "#", phx_click: "delete-list", phx_value_id: list.id do %>
-                <button class = "btn" title = "Delete list"><i class="fa fa-trash"></i></button>    
+                <%= live_patch to: "#", phx_click: "delete-list", phx_value_id: list.id do %>
+                    <button class = "btn" title = "Delete list"><i class="fa fa-trash"></i></button>    
+                <%end %>
             <%end %>
             <br/>   
                 <div class = "tasks"
-                phx-hook="SortableList" id= {"board_list_#{list.id}"}
+                phx-hook={if @board_permission != :read, do:  "SortableList", else: ""}
+                id= {"board_list_#{list.id}"}
                 data-enabled={ true }
                 data-ghost-class="-ghost" 
                 data-sortable-list-id={ list.id }
@@ -34,21 +49,40 @@ data-sortable-list-id={ @current_board.id }
                 >
                     <%= for task <- Enum.sort(list.tasks, &(Decimal.compare(&1.position, &2.position) in [:eq, :lt])) do %>
                     <div class = "task-container _item _handle"
-                    draggable = "true"
+                    draggable ={if @board_permission != :read, do:  "true", else: "false"}
                     data-id= { task.position }
                     data-resource-id= { task.id }
                     data-type= "task" 
                     >
-
-                        <b><%= task.title %></b>
-                        <br/>
-                        <%= task.description %>
-                        <br/>
+                        <%= if @board_permission == :read do  %>
+                            <b><%= task.title %></b>
+                            <br/>
+                            <%= task.description %>
+                            <br/>
+                            <%= if task.assignee != nil do %>
+                                <%= task.assignee.email %>
+                                <br/>
+                            <%end %>
+                        <% else %>
+                            <.form for = {:task} let = {g} phx_change = "task-change">  
+                                <%= text_input g, :title, value: task.title, phx_debounce: 400%>
+                                <%= text_input g, :description, value: task.description, phx_debounce: 400%>
+                                 <%= if task.assignee != nil do %>
+                                    <%= task.assignee.email %>
+                                    <br/>
+                                <%end %>
+                                <%= hidden_input g, :task_id, value: task.id %>
+                            </.form>
+                        <%end %>
+                        
+                       
                         <%= live_patch to: "#", phx_click: "task-comments", phx_value_id: task.id do %>
                             <button> Details </button>
                         <% end %>
-                        <%= live_patch to: "#", phx_click: "delete-task", phx_value_id: task.id do %>
-                            <button>  Delete </button>
+                        <%= if @board_permission != :read do %>
+                            <%= live_patch to: "#", phx_click: "delete-task", phx_value_id: task.id do %>
+                                <button>  Delete </button>
+                            <% end %>
                         <% end %>
                     </div> 
                     <% end %>
@@ -82,14 +116,15 @@ data-sortable-list-id={ @current_board.id }
 
 
 <%= if @current_modal == :comment_form do %>
-    <div class = "form-class">
+    <div class = "comment-form-class">
         <h1>Comments section </h1>
         <%= live_render(@socket, FrontendWeb.Live.BoardLive.CommentForm,
         id: "comment_form_#{(@current_task_id)}",session: %{
             "task_id" => @current_task_id,
             "current_user" => @current_user,
             "current_task" => @current_task,
-            "access_token" => @access_token
+            "access_token" => @access_token,
+            "board_permission" => @board_permission
         }) %>
         <button  phx-click = "close-modal"  > Close </button> 
     </div>

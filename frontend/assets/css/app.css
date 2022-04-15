@@ -188,7 +188,22 @@
 
 .form-class {
   text-align: center;
-  
+  border-radius: 5px;
+  background-color: #c0c0f8;
+}
+
+.comment-form-class {
+  text-align: center;
+  height: 100%;
+  width: auto;
+  min-width: 256px;
+  z-index: 999999;
+  margin: 5px;
+  border-radius: 5px;
+  position: absolute;
+  background-color: #c0c0f8;
+  right:0;
+  top: 0;
 }
 
 .form-class.-list {
@@ -217,11 +232,15 @@
   right: 20px;
 }
 
+input:hover {
+  background-color: #df615f;
+}
 .comment_section {
   align-items: center;
+  border-radius: 4px;
   width: 512px;
-  background: linear-gradient(#CCCCFF,#8585ee);
-  border-radius: 5px;
+  margin: 4px;
+  background: linear-gradient(#f8f8f8,#a9a9ee);
 }
 
 .btn {

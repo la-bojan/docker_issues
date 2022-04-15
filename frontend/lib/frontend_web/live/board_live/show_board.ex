@@ -5,6 +5,7 @@ defmodule FrontendWeb.Live.BoardLive.ShowBoard do
   alias FrontendWeb.Api.Tasks
   alias FrontendWeb.Api.Lists
   alias FrontendWeb.Api.Boards
+  alias FrontendWeb.Api.BoardPermissions
 
 
   @impl true
@@ -13,9 +14,10 @@ defmodule FrontendWeb.Live.BoardLive.ShowBoard do
     current_user = session["current_user"]
     current_board = session["current_board"]
     access_token = session["access_token"]
-    {:ok,user} = Users.get_user(%{id: current_user})
 
+    {:ok,user} = Users.get_user(%{id: current_user})
     {:ok,board} = Boards.get_board(%{id: current_board.id})
+    {:ok,board_permission} = BoardPermissions.get_board_permission(%{"board_id" => board.id, "user_id" => user.id} )
 
     lists = current_board.lists
 
@@ -27,6 +29,7 @@ defmodule FrontendWeb.Live.BoardLive.ShowBoard do
       |> assign(:current_board, board)
       |> assign(:access_token,access_token)
       |> assign(:lists, lists)
+      |> assign(:board_permission, board_permission.permission_type)
 
     {:ok, socket}
   end
@@ -59,16 +62,39 @@ defmodule FrontendWeb.Live.BoardLive.ShowBoard do
     {:noreply, socket}
   end
 
-  def handle_info(:refresh_board,socket) do
-    current_user = socket.assigns.current_user
+  @impl true
+  def handle_event("list-title-change", %{"list" => list_params},  %{assigns: assigns} = socket) do
 
-    {:ok,user} = Users.get_user(%{id: current_user})
+    params = Map.merge(%{"access_token" => socket.assigns.access_token }, list_params)
+
+    list = Enum.find(assigns.lists, &(&1.id == String.to_integer(params["list_id"])))
+    params = Map.merge(%{"list" => list}, params)
+
+    {:ok, list} =  Lists.update_list(list, params)
+    {:noreply, socket}
+  end
+
+  def handle_event("task-change", %{"task" => task_params},  %{assigns: assigns} = socket) do
+
+    params = Map.merge(%{"access_token" => socket.assigns.access_token }, task_params)
+
+    {:ok,task} = Tasks.get_task(%{"id" => String.to_integer(params["task_id"]), "access_token" => assigns.access_token })
+    {:ok, task} = Tasks.update_task(task, params)
+
+    {:noreply, socket}
+  end
+
+  def handle_info(:refresh_board,socket) do
+    current_board = socket.assigns.current_board
+    {:ok,board} = Boards.get_board(%{id: current_board.id})
+
+    lists = board.lists
 
     socket =
       socket
-      |> assign_defaults()
-      |> assign(:user,user)
-
+      |> assign(:current_modal, nil)
+      |> assign(:current_board, board)
+      |> assign(:lists,lists)
     {:noreply,socket}
   end
 

@@ -22,15 +22,12 @@
     </div>
     <%= hidden_input f, :created_by_id, value: @current_user %>
     <%= hidden_input f, :task_id, value: @current_task_id %> 
-
-
-   
   </div>
 </.form>
 
 
-
 <%= if @current_task.assignee_id == nil do %>
+Assign user
 <.form let={f} for={@user_changeset} phx_change =  "search_user">
   <div>
 
@@ -40,7 +37,7 @@
     <button type="submit" disabled style="display: none" aria-hidden="true"></button>
   </div>
 </.form>
- <%= case @results do%>
+<%= case @results do%>
       <% nil -> %>
       <% _ -> %>
         <div class="search-results">
@@ -55,6 +52,8 @@
 <% else  %>
   <div>
     Assigned to : <%= @current_task.assignee.email %>
-    <button  phx-click = "delete_assignee" phx-value-assignee_id = {@current_task.assignee.id} > Remove assignee </button>
+    <%= if @board_permission == :manage do %>
+      <button  phx-click = "delete_assignee" phx-value-assignee_id = {@current_task.assignee.id} > Remove assignee </button>
+    <%end %>
   </div>
 <% end %>

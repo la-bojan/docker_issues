@@ -16,6 +16,7 @@ defmodule FrontendWeb.Live.BoardLive.CommentForm do
     current_user = session["current_user"]
     current_task_id = session["task_id"]
     access_token = session["access_token"]
+    board_permission = session["board_permission"]
     params = %{"task_id" => current_task_id,"access_token" => access_token}
 
 
@@ -27,6 +28,7 @@ defmodule FrontendWeb.Live.BoardLive.CommentForm do
       |> assign(:comments, comments)
       |> assign(:current_task, current_task)
       |> assign(:current_user, current_user)
+      |> assign(:board_permission,board_permission)
 
     {:ok, socket}
   end
