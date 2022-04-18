@@ -137,6 +137,18 @@
   overflow-y: auto;
 }
 
+.all-board-container{
+  position: relative;
+  margin-left: 20%;
+  width: 1024px;
+  background-color: #7bc3e7;
+  margin: 7px;
+}
+
+.board-users {
+  background-color: #3787af;
+}
+
 .board-container {
   position: relative;
   display: inline-block;
@@ -145,7 +157,7 @@
   height: auto; 
   border-radius: 5px;
   margin-top: 5px;
-  background-color: rgb(163, 163, 163);
+  background-color: rgba(171, 184, 187, 0.486);
   background-repeat: no-repeat;
   background-position: center;
 }
@@ -156,7 +168,7 @@
   width:256px;
   min-height: 512px;
   padding: 5px;
-  background: linear-gradient(#0000FF,#4444FF);
+  background: linear-gradient(#efeff7,#c6c6f3);
   margin-right: 20px;
   border-radius: 5px;
 }
@@ -164,12 +176,13 @@
 .task-container {
   position: relative;
   display: inline-block;
-  background: linear-gradient(#ccccFF,#eeeeFF);
+  background: linear-gradient(#d6d6e2,#a2a2d1);
   margin-bottom: 10px;
   border-radius: 5px;
   width:100%;
   height: auto;
   padding: 5px;
+ 
 }
 
 .item:hover {
@@ -179,29 +192,37 @@
 
 .tasks {
   min-height: 100px;
+  border: 7px #000000;
 }
 
 .start-page-container {
   width: 100%;
+  align-items: center;
+}
+
+.board-user {
+  background-color: #4b7f88;
+  border-radius: 5px;
+  margin: 3px;
 }
 
 
 .form-class {
   text-align: center;
   border-radius: 5px;
-  background-color: #c0c0f8;
+  background-color: #d8b1b1;
 }
 
 .comment-form-class {
   text-align: center;
-  height: 100%;
-  width: auto;
+  height: 99%;
+  width: 512px;
   min-width: 256px;
   z-index: 999999;
   margin: 5px;
   border-radius: 5px;
   position: absolute;
-  background-color: #c0c0f8;
+  background-color: #cee0ac;
   right:0;
   top: 0;
 }
@@ -209,7 +230,8 @@
 .form-class.-list {
   width: 250px;
   min-height: 512px;
-  background: linear-gradient(#DDDDFF,#4444FF);
+  background: rgb(215, 221, 178);
+  border: 2px solid rgb(184, 231, 162);
   margin-right: 20px;
   border-radius: 5px;
 }
@@ -217,7 +239,7 @@
 .form-class.-task {
   width: 100%;
   min-height: 100px;
-  background: linear-gradient(#CCCCFF,#6666FF);
+  background: linear-gradient(#efeff3,#c8c8f1);
   margin-right: 20px;
   border-radius: 5px;
 }
@@ -232,6 +254,7 @@
   right: 20px;
 }
 
+
 input:hover {
   background-color: #df615f;
 }
@@ -240,7 +263,20 @@ input:hover {
   border-radius: 4px;
   width: 512px;
   margin: 4px;
-  background: linear-gradient(#f8f8f8,#a9a9ee);
+  background: linear-gradient(#f8f8f8,#c4c4ec);
+}
+
+.comment-content {
+  display: block;
+  width: 510px;
+  min-height: 64px;
+  background-color: #7bc3e7;
+  border-radius: 4px;
+}
+.comment-inserted-at-time {
+  position: relative;
+  bottom: 2px;
+  right: 2px;
 }
 
 .btn {

@@ -10,27 +10,40 @@ phx-hook= "SortableList"
 <br/>
 
         <%= for board <- @boards do %>
-        <div class = "board-container" >
+        <div class = "all-board-container" >
         <%= board.name %>
+
         <%= link to: Routes.board_path(@socket,:show,board.id) do %>
                 <button class = "btn" title = "Show board"><i class="fa fa-clipboard" aria-hidden="true"></i></button>    
         <%end %>
-        <button  phx-click = "add-new-member" phx-value-board-id = {board.id} phx-value-board-name = {board.name} title="Add new member" class = "btn" > <i class="fa fa-user-plus" aria-hidden="true"></i> </button>
-        <%= live_patch to: "#", phx_click: "delete-board", phx_value_id: board.id do %>
-                <button class="btn" title="Delete board"><i class="fa fa-trash"></i></button> 
+        <%= if extract_permission(user.id, board.board_permissions) != :read do %>
+            <button  phx-click = "add-new-member" phx-value-board-id = {board.id} phx-value-board-name = {board.name} title="Add new member" class = "btn" > <i class="fa fa-user-plus" aria-hidden="true"></i> </button>
+            <%= live_patch to: "#", phx_click: "delete-board", phx_value_id: board.id do %>
+                    <button class="btn" title="Delete board"><i class="fa fa-trash"></i></button> 
+            <%end %>
         <%end %>
         <br/>
-        <br/>
-        <%= for board_permission <- board.board_permissions do %>
-            <%= board_permission.user.email  %> 
-            <%= if user.id == board_permission.user_id do  %>
-            Your role is:
-            <%= else  %> Role
-            <% end  %>
-            <%= board_permission.permission_type  %>
-            <button  phx-click = "remove-member" phx-value-board-permission-id = {board_permission.id} class= "btn" title= "Delete member" ><i class="fa fa-trash"></i></button>
-            <br/>
-        <%end %>
+        Users
+            <div class = "board-users">
+               
+                <br/>
+                <%= for board_permission <- board.board_permissions do %>
+                    <div class = "board-user">
+                        <%= board_permission.user.email  %> 
+                        <%= if user.id == board_permission.user_id do  %>
+                        Your role is:
+                        <%= else  %> Role
+                        <% end  %>
+                        <%= board_permission.permission_type  %>
+                        
+                        <%= if extract_permission(user.id, board.board_permissions) != :read do %>
+                            <button  phx-click = "remove-member" phx-value-board-permission-id = {board_permission.id} class= "btn" title= "Delete member" ><i class="fa fa-trash"></i></button>
+                            <br/>
+                        <%end %>
+                        <br/>
+                    </div>
+                <%end %>
+            </div>    
         </div>
         <% end %>
     <button  phx-click = "new-board" phx-value-user-id = {user.id} phx-value-user-email = {user.email} class = "btn" title = "Add new board" ><i class="fa fa-plus-square" aria-hidden="true"></i></button>

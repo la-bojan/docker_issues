@@ -1,9 +1,17 @@
 
 <%= for comment <- @comments do %>
   <div class = "comment_section">
-    <b><%= comment.content %></b>
-    <b>By  <%= comment.user.email %></b><br/>
-    <b> at <%= comment.inserted_at %></b>
+    <div class = "comment-content"><%= comment.content %>
+    <p class = "comment-inserted-at-time">
+      <%= comment.inserted_at %>
+    </p>
+    <b>
+      <%= comment.user.email %>
+    </b>
+    <br/>
+    </div>
+    
+    
 
     <%= if @current_user == comment.user.id do  %>
     <button  phx-click = "delete-comment" phx-value-comment-id = {comment.id} class= "btn" title = "Delete comment" ><i class="fa fa-trash" aria-hidden="true"></i></button>
@@ -17,7 +25,7 @@
   <div>
 
     <div>
-    <%= text_input f , :content, placeholder: "Content" %>
+    <%= text_input f , :content, placeholder: "Add new comment" %>
     <button type="submit" class="btn" ><i class="fa fa-comment" aria-hidden="true"></i></button>
     </div>
     <%= hidden_input f, :created_by_id, value: @current_user %>

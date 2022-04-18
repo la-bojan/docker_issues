@@ -15,6 +15,8 @@ defmodule FrontendWeb.Live.HomeLive.Index do
     {:ok,user} = Users.get_user(%{id: current_user})
     {:ok,boards} = Boards.get_user_boards(%{id: current_user})
 
+
+
     access_token = session["access_token"]
 
     socket =
@@ -46,13 +48,16 @@ defmodule FrontendWeb.Live.HomeLive.Index do
 
 
   def handle_info(:refresh_user,socket) do
+
     current_user = socket.assigns.current_user
     {:ok,user} = Users.get_user(%{id: current_user})
+    {:ok,boards} = Boards.get_user_boards(%{id: current_user})
 
     socket =
       socket
       |> assign_defaults()
       |> assign(:user,user)
+      |> assign(:boards,boards)
 
     {:noreply,socket}
   end
@@ -108,6 +113,10 @@ defmodule FrontendWeb.Live.HomeLive.Index do
 
   def handle_event("select_permission", params, socket) do
 
+
+    IO.inspect("======================================================================================================")
+    IO.inspect(params)
+
     permission = params["atom"]["permission"]
     socket =
       socket
@@ -134,8 +143,6 @@ defmodule FrontendWeb.Live.HomeLive.Index do
   end
 
   def handle_event("show-board", %{"id" => id}, socket) do
-
-
     {:ok, _} = Boards.delete_board(%{"id" => id})
 
     current_user = socket.assigns.current_user
@@ -161,8 +168,5 @@ defmodule FrontendWeb.Live.HomeLive.Index do
 
     {:noreply,socket}
   end
-
-
-
 
 end

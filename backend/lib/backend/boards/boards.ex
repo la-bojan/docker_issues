@@ -20,7 +20,7 @@ defmodule Backend.Boards.Boards do
     |> Board.changeset(attrs)
     |> Repo.insert()
 
-    {:ok, Repo.preload(board, lists: [:tasks])}
+    {:ok, Repo.preload(board, lists: [:tasks])  |> Repo.preload(board_permissions: [:user])  }
   end
 
   def all_board_members(board_id) do

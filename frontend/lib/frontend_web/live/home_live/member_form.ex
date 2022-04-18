@@ -56,6 +56,20 @@ defmodule FrontendWeb.Live.HomeLive.MemberForm do
     {:noreply, socket}
   end
 
+  def handle_event("select_permission", params, socket) do
+
+
+    IO.inspect("======================================================================================================")
+    IO.inspect(params)
+
+    permission = params["atom"]["permission"]
+    socket =
+      socket
+      |> assign(:permission, String.to_atom(permission))
+
+
+    {:noreply,socket}
+  end
 
 
   def handle_event("craete_board_permission", %{"assignee_id" => assignee_id}, %{assigns: assigns} = socket) do

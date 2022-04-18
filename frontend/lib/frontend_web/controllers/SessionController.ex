@@ -21,7 +21,19 @@ defmodule  FrontendWeb.SessionController do
       |> put_session(:current_user, user["id"])
       |> put_flash(:info, "Login successful")
       redirect(conn,to: Routes.home_path(conn,:index))
-
+    else
+      {:error,  %Ecto.Changeset{} = changeset  } ->
+        conn
+        |> assign(:access_token, nil)
+        |> assign(:current_user, nil)
+        |> assign(:changeset, %{changeset | action: :signin})
+        redirect(conn,to: "/")
+      _error ->
+        conn
+        |> assign(:access_token, nil)
+        |> assign(:current_user, nil)
+        |> put_flash(:error, "Email already taken.") #expand more on error handling
+        redirect(conn,to: "/")
     end
   end
 
